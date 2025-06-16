@@ -1,0 +1,445 @@
+
+import { isHTMLElement } from "./utils/DOM";
+
+export default class PlainCalendar {
+
+  #container
+  #currentDate = new Date()
+  #selectedDate = null
+  #eventDates = new Set() // Store timestamps of dates with events
+
+  constructor(container, options = {}) {
+    if (!isHTMLElement(container))
+      throw new Error("Calendar expects a valid HTML containter element")
+
+    this.container = container;
+    this.currentDate = new Date();
+    this.selectedDate = null;
+    this.eventDates = new Set(); // Store timestamps of dates with events
+    
+    // Options
+    this.options = {
+      onDateSelect: options.onDateSelect || null,
+      onMonthChange: options.onMonthChange || null,
+      showControls: options.showControls !== false,
+      allowPastDates: options.allowPastDates !== false,
+      ...options
+    };
+    
+    this.monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    
+    this.dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    
+    this.init();
+  }
+  
+  init() {
+    this.render();
+  }
+  
+  /**
+   * Parse various date formats into a Date object
+   * @param {Date|string|number} input - Date input in various formats
+   * @returns {Date|null} Parsed Date object or null if invalid
+   */
+  parseDate(input) {
+    if (!input && input !== 0) return null;
+    
+    try {
+      // If already a Date object
+      if (input instanceof Date) {
+        return isNaN(input.getTime()) ? null : new Date(input);
+      }
+      
+      // If it's a number (timestamp)
+      if (typeof input === 'number') {
+        // Handle both seconds and milliseconds timestamps
+        const timestamp = input < 10000000000 ? input * 1000 : input;
+        const date = new Date(timestamp);
+        return isNaN(date.getTime()) ? null : date;
+      }
+      
+      // If it's a string
+      if (typeof input === 'string') {
+        // Try parsing as timestamp first
+        const numericValue = parseFloat(input);
+        if (!isNaN(numericValue) && input.trim() === numericValue.toString()) {
+          const timestamp = numericValue < 10000000000 ? numericValue * 1000 : numericValue;
+          const date = new Date(timestamp);
+          if (!isNaN(date.getTime())) return date;
+        }
+        
+        // Try parsing as date string
+        const date = new Date(input);
+        return isNaN(date.getTime()) ? null : date;
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('Error parsing date:', error);
+      return null;
+    }
+  }
+  
+  /**
+   * Set the selected date
+   * @param {Date|string|number} date - Date in various formats
+   * @returns {boolean} Success status
+   */
+  setDate(date) {
+    const parsedDate = this.parseDate(date);
+    if (!parsedDate) {
+      console.error('Invalid date format:', date);
+      return false;
+    }
+    
+    this.selectedDate = parsedDate;
+    this.currentDate = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    this.render();
+    
+    if (this.options.onDateSelect) {
+      this.options.onDateSelect(parsedDate);
+    }
+    
+    return true;
+  }
+  
+  /**
+   * Add event dates (dates that should be highlighted)
+   * @param {Array|Date|string|number} dates - Single date or array of dates
+   */
+  addEventDates(dates) {
+    const dateArray = Array.isArray(dates) ? dates : [dates];
+    
+    dateArray.forEach(date => {
+      const parsedDate = this.parseDate(date);
+      if (parsedDate) {
+        // Store as timestamp for easy comparison
+        const timestamp = new Date(
+          parsedDate.getFullYear(),
+          parsedDate.getMonth(),
+          parsedDate.getDate()
+        ).getTime();
+        this.eventDates.add(timestamp);
+      }
+    });
+    
+    this.render();
+  }
+  
+  /**
+   * Clear all event dates
+   */
+  clearEventDates() {
+    this.eventDates.clear();
+    this.render();
+  }
+  
+  /**
+   * Navigate to previous month
+   */
+  previousMonth() {
+    this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+    this.render();
+    
+    if (this.options.onMonthChange) {
+      this.options.onMonthChange(new Date(this.currentDate));
+    }
+  }
+  
+  /**
+   * Navigate to next month
+   */
+  nextMonth() {
+    this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+    this.render();
+    
+    if (this.options.onMonthChange) {
+      this.options.onMonthChange(new Date(this.currentDate));
+    }
+  }
+  
+  /**
+   * Go to today's date
+   */
+  goToToday() {
+    this.currentDate = new Date();
+    this.render();
+  }
+  
+  /**
+   * Get the currently selected date
+   * @returns {Date|null} Selected date
+   */
+  getSelectedDate() {
+    return this.selectedDate ? new Date(this.selectedDate) : null;
+  }
+  
+  /**
+   * Check if a date has events
+   * @param {Date} date - Date to check
+   * @returns {boolean} Whether the date has events
+   */
+  hasEvents(date) {
+    const timestamp = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    ).getTime();
+    return this.eventDates.has(timestamp);
+  }
+  
+  /**
+   * Check if a date is today
+   * @param {Date} date - Date to check
+   * @returns {boolean} Whether the date is today
+   */
+  isToday(date) {
+    const today = new Date();
+    return date.getDate() === today.getDate() &&
+          date.getMonth() === today.getMonth() &&
+          date.getFullYear() === today.getFullYear();
+  }
+  
+  /**
+   * Check if a date is selected
+   * @param {Date} date - Date to check
+   * @returns {boolean} Whether the date is selected
+   */
+  isSelected(date) {
+    if (!this.selectedDate) return false;
+    return date.getDate() === this.selectedDate.getDate() &&
+          date.getMonth() === this.selectedDate.getMonth() &&
+          date.getFullYear() === this.selectedDate.getFullYear();
+  }
+  
+  /**
+   * Handle day click
+   * @param {Date} date - Clicked date
+   */
+  onDayClick(date) {
+    if (!this.options.allowPastDates && date < new Date().setHours(0,0,0,0)) {
+      return; // Don't allow past dates if option is set
+    }
+    
+    this.setDate(date);
+  }
+  
+  /**
+   * Render the calendar
+   */
+  render() {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+    
+    // Get first day of month and number of days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    // Get previous month info for padding
+    const prevMonth = new Date(year, month - 1, 0);
+    const daysInPrevMonth = prevMonth.getDate();
+    
+    let html = `
+      <div class="calendar-container">
+        <div class="calendar-header">
+          <button class="calendar-nav" onclick="calendar.previousMonth()">‹</button>
+          <div class="calendar-title">${this.monthNames[month]} ${year}</div>
+          <button class="calendar-nav" onclick="calendar.nextMonth()">›</button>
+        </div>
+        <div class="calendar-grid">
+    `;
+    
+    // Day headers
+    this.dayNames.forEach(day => {
+      html += `<div class="calendar-day-header">${day}</div>`;
+    });
+    
+    // Previous month's trailing days
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      const day = daysInPrevMonth - i;
+      const date = new Date(year, month - 1, day);
+      html += `<div class="calendar-day other-month" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+    }
+    
+    // Current month days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      let classes = ['calendar-day'];
+      
+      if (this.isToday(date)) classes.push('today');
+      if (this.isSelected(date)) classes.push('selected');
+      if (this.hasEvents(date)) classes.push('has-events');
+      
+      html += `<div class="${classes.join(' ')}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+    }
+    
+    // Next month's leading days
+    const totalCells = Math.ceil((startingDayOfWeek + daysInMonth) / 7) * 7;
+    const remainingCells = totalCells - (startingDayOfWeek + daysInMonth);
+    
+    for (let day = 1; day <= remainingCells; day++) {
+      const date = new Date(year, month + 1, day);
+      html += `<div class="calendar-day other-month" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+    }
+    
+    html += `</div>`; // Close calendar-grid
+    
+    // Add controls if enabled
+    if (this.options.showControls) {
+      html += `
+        <div class="calendar-controls">
+          <input type="text" class="calendar-input" id="dateInput_${this.container.id}" 
+                placeholder="Enter date (YYYY-MM-DD, timestamp, etc.)" />
+          <button class="calendar-button" onclick="calendar.setDateFromInput()">Set Date</button>
+          <button class="calendar-button" onclick="calendar.goToToday()">Today</button>
+          <div class="calendar-info">
+            <strong>Selected:</strong> ${this.selectedDate ? this.formatDate(this.selectedDate) : 'None'}<br>
+            <strong>Events:</strong> ${this.eventDates.size} dates
+          </div>
+        </div>
+      `;
+    }
+    
+    html += `</div>`; // Close calendar-container
+    
+    this.container.innerHTML = html;
+  }
+  
+  /**
+   * Set date from input field
+   */
+  setDateFromInput() {
+    const input = document.getElementById(`dateInput_${this.container.id}`);
+    if (input && input.value.trim()) {
+      const success = this.setDate(input.value.trim());
+      if (success) {
+        input.value = '';
+        input.style.borderColor = '#ddd';
+      } else {
+        input.style.borderColor = '#ff4444';
+        setTimeout(() => {
+          input.style.borderColor = '#ddd';
+        }, 2000);
+      }
+    }
+  }
+  
+  /**
+   * Format date for display
+   * @param {Date} date - Date to format
+   * @returns {string} Formatted date string
+   */
+  formatDate(date) {
+    if (!date) return '';
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+  
+  /**
+   * Get all event dates
+   * @returns {Array<Date>} Array of event dates
+   */
+  getEventDates() {
+    return Array.from(this.eventDates).map(timestamp => new Date(timestamp));
+  }
+  
+  /**
+   * Remove specific event dates
+   * @param {Array|Date|string|number} dates - Dates to remove
+   */
+  removeEventDates(dates) {
+    const dateArray = Array.isArray(dates) ? dates : [dates];
+    
+    dateArray.forEach(date => {
+      const parsedDate = this.parseDate(date);
+      if (parsedDate) {
+        const timestamp = new Date(
+          parsedDate.getFullYear(),
+          parsedDate.getMonth(),
+          parsedDate.getDate()
+        ).getTime();
+        this.eventDates.delete(timestamp);
+      }
+    });
+    
+    this.render();
+  }
+  
+  /**
+   * Get dates in a range
+   * @param {Date|string|number} startDate - Start date
+   * @param {Date|string|number} endDate - End date
+   * @returns {Array<Date>} Array of dates in range
+   */
+  getDatesInRange(startDate, endDate) {
+    const start = this.parseDate(startDate);
+    const end = this.parseDate(endDate);
+    
+    if (!start || !end) return [];
+    
+    const dates = [];
+    const currentDate = new Date(start);
+    
+    while (currentDate <= end) {
+      dates.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return dates;
+  }
+  
+  /**
+   * Highlight dates in a range
+   * @param {Date|string|number} startDate - Start date
+   * @param {Date|string|number} endDate - End date
+   */
+  highlightRange(startDate, endDate) {
+    const datesInRange = this.getDatesInRange(startDate, endDate);
+    this.addEventDates(datesInRange);
+  }
+  
+  /**
+   * Navigate to specific month/year
+   * @param {number} year - Year
+   * @param {number} month - Month (0-11)
+   */
+  goToMonth(year, month) {
+    this.currentDate = new Date(year, month, 1);
+    this.render();
+    
+    if (this.options.onMonthChange) {
+      this.options.onMonthChange(new Date(this.currentDate));
+    }
+  }
+  
+  /**
+   * Get current viewing month/year
+   * @returns {Object} Object with year and month
+   */
+  getCurrentView() {
+    return {
+      year: this.currentDate.getFullYear(),
+      month: this.currentDate.getMonth(),
+      monthName: this.monthNames[this.currentDate.getMonth()]
+    };
+  }
+  
+  /**
+   * Destroy the calendar and clean up
+   */
+  destroy() {
+    this.container.innerHTML = '';
+    this.eventDates.clear();
+    this.selectedDate = null;
+    this.currentDate = null;
+  }
+}
