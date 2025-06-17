@@ -1,5 +1,27 @@
 
 import { isHTMLElement } from "./utils/DOM";
+import i18n from "./i18n";
+import { isArrayOfType, isNumber, isString } from "./utils/typeChecks";
+import css from "./style";
+
+const monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const english = {
+  id: {code: "en", name: "English"},
+  translations: {
+    ...Object.fromEntries(monthNames.map(prop => [prop, prop])),
+    ...Object.fromEntries(dayNames.map(prop => [prop, prop]))
+  }
+}
+
+const languages = [
+  english
+]
 
 export default class PlainCalendar {
 
@@ -7,39 +29,83 @@ export default class PlainCalendar {
   #currentDate = new Date()
   #selectedDate = null
   #eventDates = new Set() // Store timestamps of dates with events
+  #options = {}
+  #language = "en"
+  #lang
+  #monthNames = {}
+  #dayNames = {}
 
   constructor(container, options = {}) {
     if (!isHTMLElement(container))
       throw new Error("Calendar expects a valid HTML containter element")
 
-    this.container = container;
-    this.currentDate = new Date();
-    this.selectedDate = null;
-    this.eventDates = new Set(); // Store timestamps of dates with events
-    
-    // Options
-    this.options = {
-      onDateSelect: options.onDateSelect || null,
-      onMonthChange: options.onMonthChange || null,
-      showControls: options.showControls !== false,
-      allowPastDates: options.allowPastDates !== false,
-      ...options
+    this.#container = container;
+    this.#options = {
+      ...options,
+      onDateSelect: options?.onDateSelect || null,
+      onMonthChange: options?.onMonthChange || null,
+      showControls: options?.showControls !== false,
+      allowPastDates: options?.allowPastDates !== false,
+      language: options?.language || "en",
+      languages: options?.languages || languages
     };
-    
-    this.monthNames = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-    
-    this.dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    
+
+    this.setLanguage(this.#options.language, this.#options.languages)
     this.init();
   }
+
+  /**
+   * Destroy the calendar and clean up
+   */
+  destroy() {
+    this.#container.innerHTML = '';
+    this.#eventDates.clear();
+    this.#selectedDate = null;
+    this.#currentDate = null;
+  }
+
+  get container() { return this.#container }
+  get currentDate() { return this.#currentDate }
+  get selectedDate() { return this.#selectedDate }
+  get eventDates() { return this.#eventDates }
+  get language() { return this.#language }
+  get monthNames() { return this.#monthNames }
+  get dayNames() { return this.#dayNames }
+
   
   init() {
     this.render();
+
+    // Create a new style element
+    const style = document.createElement('style');
+    style.type = 'text/css';
+
+    // Add the CSS to the style element
+    style.appendChild(document.createTextNode(css));
+
+    // Append the style element to the document head
+    document.head.appendChild(style);
   }
   
+  setLanguage(lang="en", translations) {
+    if (!(this.#lang instanceof i18n)) {
+      const trans = (isArrayOfType(translations, "object")) ? translations : languages
+      const calLanguages = [...languages, ...trans]
+      this.#lang = new i18n(calLanguages)
+    }
+    if (this.#lang.has(lang)) {
+      this.#language = lang
+
+      this.#monthNames = monthNames.map((month) => {
+        return this.#lang.translate(this.#language, month)
+      })
+
+      this.#dayNames = dayNames.map((name) => {
+        return this.#lang.translate(this.#language, name)
+      })
+    }
+  }
+
   /**
    * Parse various date formats into a Date object
    * @param {Date|string|number} input - Date input in various formats
@@ -55,7 +121,7 @@ export default class PlainCalendar {
       }
       
       // If it's a number (timestamp)
-      if (typeof input === 'number') {
+      if (isNumber(input)) {
         // Handle both seconds and milliseconds timestamps
         const timestamp = input < 10000000000 ? input * 1000 : input;
         const date = new Date(timestamp);
@@ -63,7 +129,7 @@ export default class PlainCalendar {
       }
       
       // If it's a string
-      if (typeof input === 'string') {
+      if (isString(input)) {
         // Try parsing as timestamp first
         const numericValue = parseFloat(input);
         if (!isNaN(numericValue) && input.trim() === numericValue.toString()) {
@@ -96,12 +162,12 @@ export default class PlainCalendar {
       return false;
     }
     
-    this.selectedDate = parsedDate;
-    this.currentDate = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
+    this.#selectedDate = parsedDate;
+    this.#currentDate = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
     this.render();
     
-    if (this.options.onDateSelect) {
-      this.options.onDateSelect(parsedDate);
+    if (this.#options.onDateSelect) {
+      this.#options.onDateSelect(parsedDate);
     }
     
     return true;
@@ -123,7 +189,7 @@ export default class PlainCalendar {
           parsedDate.getMonth(),
           parsedDate.getDate()
         ).getTime();
-        this.eventDates.add(timestamp);
+        this.#eventDates.add(timestamp);
       }
     });
     
@@ -134,7 +200,7 @@ export default class PlainCalendar {
    * Clear all event dates
    */
   clearEventDates() {
-    this.eventDates.clear();
+    this.#eventDates.clear();
     this.render();
   }
   
@@ -142,11 +208,11 @@ export default class PlainCalendar {
    * Navigate to previous month
    */
   previousMonth() {
-    this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+    this.#currentDate.setMonth(this.#currentDate.getMonth() - 1);
     this.render();
     
-    if (this.options.onMonthChange) {
-      this.options.onMonthChange(new Date(this.currentDate));
+    if (this.#options.onMonthChange) {
+      this.#options.onMonthChange(new Date(this.#currentDate));
     }
   }
   
@@ -154,11 +220,11 @@ export default class PlainCalendar {
    * Navigate to next month
    */
   nextMonth() {
-    this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+    this.#currentDate.setMonth(this.#currentDate.getMonth() + 1);
     this.render();
     
-    if (this.options.onMonthChange) {
-      this.options.onMonthChange(new Date(this.currentDate));
+    if (this.#options.onMonthChange) {
+      this.#options.onMonthChange(new Date(this.#currentDate));
     }
   }
   
@@ -166,7 +232,7 @@ export default class PlainCalendar {
    * Go to today's date
    */
   goToToday() {
-    this.currentDate = new Date();
+    this.#currentDate = new Date();
     this.render();
   }
   
@@ -175,7 +241,7 @@ export default class PlainCalendar {
    * @returns {Date|null} Selected date
    */
   getSelectedDate() {
-    return this.selectedDate ? new Date(this.selectedDate) : null;
+    return this.#selectedDate ? new Date(this.#selectedDate) : null;
   }
   
   /**
@@ -189,7 +255,7 @@ export default class PlainCalendar {
       date.getMonth(),
       date.getDate()
     ).getTime();
-    return this.eventDates.has(timestamp);
+    return this.#eventDates.has(timestamp);
   }
   
   /**
@@ -210,10 +276,10 @@ export default class PlainCalendar {
    * @returns {boolean} Whether the date is selected
    */
   isSelected(date) {
-    if (!this.selectedDate) return false;
-    return date.getDate() === this.selectedDate.getDate() &&
-          date.getMonth() === this.selectedDate.getMonth() &&
-          date.getFullYear() === this.selectedDate.getFullYear();
+    if (!this.#selectedDate) return false;
+    return date.getDate() === this.#selectedDate.getDate() &&
+          date.getMonth() === this.#selectedDate.getMonth() &&
+          date.getFullYear() === this.#selectedDate.getFullYear();
   }
   
   /**
@@ -221,7 +287,7 @@ export default class PlainCalendar {
    * @param {Date} date - Clicked date
    */
   onDayClick(date) {
-    if (!this.options.allowPastDates && date < new Date().setHours(0,0,0,0)) {
+    if (!this.#options.allowPastDates && date < new Date().setHours(0,0,0,0)) {
       return; // Don't allow past dates if option is set
     }
     
@@ -232,8 +298,8 @@ export default class PlainCalendar {
    * Render the calendar
    */
   render() {
-    const year = this.currentDate.getFullYear();
-    const month = this.currentDate.getMonth();
+    const year = this.#currentDate.getFullYear();
+    const month = this.#currentDate.getMonth();
     
     // Get first day of month and number of days
     const firstDay = new Date(year, month, 1);
@@ -264,7 +330,7 @@ export default class PlainCalendar {
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const day = daysInPrevMonth - i;
       const date = new Date(year, month - 1, day);
-      html += `<div class="calendar-day other-month" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+      html += `<div class="calendar-day other-month" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
     }
     
     // Current month days
@@ -276,7 +342,7 @@ export default class PlainCalendar {
       if (this.isSelected(date)) classes.push('selected');
       if (this.hasEvents(date)) classes.push('has-events');
       
-      html += `<div class="${classes.join(' ')}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+      html += `<div class="${classes.join(' ')}" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
     }
     
     // Next month's leading days
@@ -285,22 +351,22 @@ export default class PlainCalendar {
     
     for (let day = 1; day <= remainingCells; day++) {
       const date = new Date(year, month + 1, day);
-      html += `<div class="calendar-day other-month" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+      html += `<div class="calendar-day other-month" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
     }
     
     html += `</div>`; // Close calendar-grid
     
     // Add controls if enabled
-    if (this.options.showControls) {
+    if (this.#options.showControls) {
       html += `
         <div class="calendar-controls">
-          <input type="text" class="calendar-input" id="dateInput_${this.container.id}" 
+          <input type="text" class="calendar-input" id="dateInput_${this.#container.id}" 
                 placeholder="Enter date (YYYY-MM-DD, timestamp, etc.)" />
           <button class="calendar-button" onclick="calendar.setDateFromInput()">Set Date</button>
           <button class="calendar-button" onclick="calendar.goToToday()">Today</button>
           <div class="calendar-info">
-            <strong>Selected:</strong> ${this.selectedDate ? this.formatDate(this.selectedDate) : 'None'}<br>
-            <strong>Events:</strong> ${this.eventDates.size} dates
+            <strong>Selected:</strong> ${this.#selectedDate ? this.formatDate(this.#selectedDate) : 'None'}<br>
+            <strong>Events:</strong> ${this.#eventDates.size} dates
           </div>
         </div>
       `;
@@ -308,14 +374,14 @@ export default class PlainCalendar {
     
     html += `</div>`; // Close calendar-container
     
-    this.container.innerHTML = html;
+    this.#container.innerHTML = html;
   }
   
   /**
    * Set date from input field
    */
   setDateFromInput() {
-    const input = document.getElementById(`dateInput_${this.container.id}`);
+    const input = document.getElementById(`dateInput_${this.#container.id}`);
     if (input && input.value.trim()) {
       const success = this.setDate(input.value.trim());
       if (success) {
@@ -349,7 +415,7 @@ export default class PlainCalendar {
    * @returns {Array<Date>} Array of event dates
    */
   getEventDates() {
-    return Array.from(this.eventDates).map(timestamp => new Date(timestamp));
+    return Array.from(this.#eventDates).map(timestamp => new Date(timestamp));
   }
   
   /**
@@ -367,7 +433,7 @@ export default class PlainCalendar {
           parsedDate.getMonth(),
           parsedDate.getDate()
         ).getTime();
-        this.eventDates.delete(timestamp);
+        this.#eventDates.delete(timestamp);
       }
     });
     
@@ -413,11 +479,11 @@ export default class PlainCalendar {
    * @param {number} month - Month (0-11)
    */
   goToMonth(year, month) {
-    this.currentDate = new Date(year, month, 1);
+    this.#currentDate = new Date(year, month, 1);
     this.render();
     
-    if (this.options.onMonthChange) {
-      this.options.onMonthChange(new Date(this.currentDate));
+    if (this.#options.onMonthChange) {
+      this.#options.onMonthChange(new Date(this.#currentDate));
     }
   }
   
@@ -427,19 +493,11 @@ export default class PlainCalendar {
    */
   getCurrentView() {
     return {
-      year: this.currentDate.getFullYear(),
-      month: this.currentDate.getMonth(),
-      monthName: this.monthNames[this.currentDate.getMonth()]
+      year: this.#currentDate.getFullYear(),
+      month: this.#currentDate.getMonth(),
+      monthName: this.monthNames[this.#currentDate.getMonth()]
     };
   }
   
-  /**
-   * Destroy the calendar and clean up
-   */
-  destroy() {
-    this.container.innerHTML = '';
-    this.eventDates.clear();
-    this.selectedDate = null;
-    this.currentDate = null;
-  }
+
 }
