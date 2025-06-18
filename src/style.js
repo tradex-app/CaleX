@@ -61,7 +61,7 @@ const style = `
     padding: 12px;
     text-align: center;
     cursor: pointer;
-    border: 1px solid #f0f0f0;
+    // border: 1px solid #f0f0f0;
     transition: all 0.2s;
     position: relative;
     min-height: 40px;
@@ -75,7 +75,7 @@ const style = `
 }
 
 .calendar-day.other-month {
-    color: #ccc;
+    color: #aaa;
     background-color: #fafafa;
 }
 
