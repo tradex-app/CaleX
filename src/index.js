@@ -376,6 +376,25 @@ export default class PlainCalendar {
     
     this.#container.innerHTML = html;
   }
+
+  renderHeader() {
+    const header = document.createElement("div")
+          header.classList.add("calendar-header")
+
+    return header
+  }
+
+  renderNavPrevNext() {
+    
+  }
+
+  renderBodyGrid() {
+
+  }
+
+  renderTime() {
+
+  }
   
   /**
    * Set date from input field
