@@ -1,5 +1,5 @@
 
-import { isHTMLElement } from "./utils/DOM";
+import { htmlToElement, isHTMLElement } from "./utils/DOM";
 import i18n from "./i18n";
 import { isArrayOfType, isNumber, isString } from "./utils/typeChecks";
 import css from "./style";
@@ -377,15 +377,55 @@ export default class PlainCalendar {
     this.#container.innerHTML = html;
   }
 
-  renderHeader() {
+  renderHeader(month, year) {
+    const navPrev = this.renderNavPrevNext("prev")
+    const monthSelect = this.renderMonth(month)
+    const yearSelect = this.renderYear(year)
+    const navNext = this.renderNavPrevNext("next")
     const header = document.createElement("div")
           header.classList.add("calendar-header")
-
+          header.append(navPrev)
+          header.append(monthSelect)
+          header.append(yearSelect)
+          header.append(navNext)
     return header
   }
 
-  renderNavPrevNext() {
-    
+  renderNavPrevNext(step) {
+    const nav = document.createElement("select")
+          nav.classList.add("calendar-nav")
+    if (step === "prev") {
+      nav.onclick = this.previousMonth().bind(this)
+      nav.setAttribute('content','‹')
+    }
+    else if (step === "next") {
+      nav.onclick = this.nextMonth().bind(this)
+      nav.setAttribute('content','›')
+    }
+    return nav
+  }
+
+  renderMonth(month) {
+    return this.renderSelect("month", this.#monthNames, month)
+  }
+
+  renderYear(year) {
+    const html = `<input type="number" placeholder="YYYY" min="1999" max="2020" value="${year}">`
+    const input = htmlToElement(html)
+          // input.onchange = 
+    return input
+  }
+
+  renderSelect(type, options, selected) {
+    const select = document.createElement('select')
+          select.classList.add(`calendar-${type}`)
+    for (let name of options) {
+      let text = name.charAt(0).toUpperCase() + name.slice(1);
+      let option = new Option(text, name)
+      if (name === selected) this.#options.selected = true
+      select.appendChild(option);
+    }
+    return select
   }
 
   renderBodyGrid() {
