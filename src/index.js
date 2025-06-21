@@ -423,8 +423,8 @@ export default class PlainCalendar {
     }
     
     // Next month's leading days
-    const totalCells = Math.ceil((startingDayOfWeek + daysInMonth) / 7) * 7;
-    const remainingCells = totalCells - (startingDayOfWeek + daysInMonth);
+    // const totalCells = Math.ceil((startingDayOfWeek + daysInMonth) / 7) * 7;
+    const remainingCells = 42 - (startingDayOfWeek + daysInMonth);
     
     for (let day = 1; day <= remainingCells; day++) {
       const date = new Date(year, month + 1, day);
