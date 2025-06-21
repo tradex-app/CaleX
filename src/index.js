@@ -363,7 +363,7 @@ export default class PlainCalendar {
 
   renderMonth(month) {
     const input = this.renderSelect("month", this.#monthNames, month)
-          input.onchange = this.setDateFromInputs.bind(this)
+          input.onchange = this.setDateFromMonthInput.bind(this)
     this.#monthInput = input
     return input
   }
@@ -371,7 +371,7 @@ export default class PlainCalendar {
   renderYear(year) {
     const html = `<input type="number" placeholder="YYYY" min="0" max="3000" value="${year}">`
     const input = htmlToElement(html)
-          input.onchange = this.setDateFromInputs.bind(this)
+          input.onchange = this.setDateFromYearInput.bind(this)
     this.#yearInput = input
     return input
   }
@@ -381,7 +381,8 @@ export default class PlainCalendar {
           select.classList.add(`calendar-${type}`)
     for (let name of options) {
       let text = name.charAt(0).toUpperCase() + name.slice(1);
-      let option = new Option(text, name)
+      let value = options.indexOf(name)
+      let option = new Option(text, value)
       if (text === options[selected]) option.selected = true
       select.appendChild(option);
     }
@@ -470,8 +471,16 @@ export default class PlainCalendar {
     }
   }
 
-  setDateFromInputs() {
+  setDateFromMonthInput(event) {
+    const month = event.currentTarget.value
+    this.#currentDate.setMonth(month)
+    this.render()
+  }
 
+  setDateFromYearInput(event) {
+    const year = event.currentTarget.value
+    this.#currentDate.setFullYear(year)
+    this.render()
   }
   
   /**
