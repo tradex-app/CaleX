@@ -375,7 +375,7 @@ export default class PlainCalendar {
     for (let name of options) {
       let text = name.charAt(0).toUpperCase() + name.slice(1);
       let option = new Option(text, name)
-      if (name === selected) this.#options.selected = true
+      if (text === options[selected]) option.selected = true
       select.appendChild(option);
     }
     return select
