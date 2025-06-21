@@ -34,6 +34,10 @@ export default class PlainCalendar {
   #lang
   #monthNames = {}
   #dayNames = {}
+  #timeInput
+  #monthInput
+  #yearInput
+
 
   constructor(container, options = {}) {
     if (!isHTMLElement(container))
@@ -45,7 +49,7 @@ export default class PlainCalendar {
       onDateSelect: options?.onDateSelect || null,
       onMonthChange: options?.onMonthChange || null,
       showControls: options?.showControls !== false,
-      allowPastDates: options?.allowPastDates !== false,
+      allowPastDates: options?.allowPastDates !== true,
       language: options?.language || "en",
       languages: options?.languages || languages
     };
@@ -284,9 +288,10 @@ export default class PlainCalendar {
   
   /**
    * Handle day click
-   * @param {Date} date - Clicked date
+   * @param {Event} event - Clicked date
    */
-  onDayClick(date) {
+  onDayClick(event) {
+    const date = event.currentTarget.dataset.ts * 1
     if (!this.#options.allowPastDates && date < new Date().setHours(0,0,0,0)) {
       return; // Don't allow past dates if option is set
     }
@@ -329,8 +334,6 @@ export default class PlainCalendar {
   }
 
   renderFooter(month, year) {
-    if (!this.#options.showControls) return
-
     const html = `
     <div class="calendar-info">
       <strong>Selected:</strong> ${this.#selectedDate ? this.formatDate(this.#selectedDate) : 'None'}<br>
@@ -359,13 +362,17 @@ export default class PlainCalendar {
   }
 
   renderMonth(month) {
-    return this.renderSelect("month", this.#monthNames, month)
+    const input = this.renderSelect("month", this.#monthNames, month)
+          input.onchange = this.setDateFromInputs.bind(this)
+    this.#monthInput = input
+    return input
   }
 
   renderYear(year) {
-    const html = `<input type="number" placeholder="YYYY" min="1999" max="2020" value="${year}">`
+    const html = `<input type="number" placeholder="YYYY" min="0" max="3000" value="${year}">`
     const input = htmlToElement(html)
-          // input.onchange = 
+          input.onchange = this.setDateFromInputs.bind(this)
+    this.#yearInput = input
     return input
   }
 
@@ -407,7 +414,7 @@ export default class PlainCalendar {
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const day = daysInPrevMonth - i;
       const date = new Date(year, month - 1, day);
-      html += `<div class="calendar-day other-month" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+      html += `<div class="calendar-day other-month" data-date="${day}" data-ts="${date.getTime()}">${day}</div>`;
     }
     
     // Current month days
@@ -419,7 +426,7 @@ export default class PlainCalendar {
       if (this.isSelected(date)) classes.push('selected');
       if (this.hasEvents(date)) classes.push('has-events');
       
-      html += `<div class="${classes.join(' ')}" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+      html += `<div class="${classes.join(' ')}" data-date="${day}" data-ts="${date.getTime()}">${day}</div>`;
     }
     
     // Next month's leading days
@@ -428,11 +435,16 @@ export default class PlainCalendar {
     
     for (let day = 1; day <= remainingCells; day++) {
       const date = new Date(year, month + 1, day);
-      html += `<div class="calendar-day other-month" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+      html += `<div class="calendar-day other-month" data-date="${day}" data-ts="${date.getTime()}">${day}</div>`;
     }
 
     html += `</div>`
-    return htmlToElement(html)
+    const grid = htmlToElement(html)
+    const days = grid.querySelectorAll(`.calendar-day`)
+          days.forEach((day) => {
+            day.onclick = this.onDayClick.bind(this)
+          })
+    return grid
   }
 
   renderTime() {
@@ -456,6 +468,10 @@ export default class PlainCalendar {
         }, 2000);
       }
     }
+  }
+
+  setDateFromInputs() {
+
   }
   
   /**
