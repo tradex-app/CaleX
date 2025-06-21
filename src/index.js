@@ -1,5 +1,5 @@
 
-import { htmlToElement, isHTMLElement } from "./utils/DOM";
+import { htmlToElement, htmlToElements, isHTMLElement } from "./utils/DOM";
 import i18n from "./i18n";
 import { isArrayOfType, isNumber, isString } from "./utils/typeChecks";
 import css from "./style";
@@ -300,81 +300,18 @@ export default class PlainCalendar {
   render() {
     const year = this.#currentDate.getFullYear();
     const month = this.#currentDate.getMonth();
-    
-    // Get first day of month and number of days
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-    
-    // Get previous month info for padding
-    const prevMonth = new Date(year, month - 1, 0);
-    const daysInPrevMonth = prevMonth.getDate();
-    
-    let html = `
-      <div class="calendar-container">
-        <div class="calendar-header">
-          <button class="calendar-nav" onclick="calendar.previousMonth()">‹</button>
-          <div class="calendar-title">${this.monthNames[month]} ${year}</div>
-          <button class="calendar-nav" onclick="calendar.nextMonth()">›</button>
-        </div>
-        <div class="calendar-grid">
-    `;
-    
-    // Day headers
-    this.dayNames.forEach(day => {
-      html += `<div class="calendar-day-header">${day}</div>`;
-    });
-    
-    // Previous month's trailing days
-    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-      const day = daysInPrevMonth - i;
-      const date = new Date(year, month - 1, day);
-      html += `<div class="calendar-day other-month" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
-    }
-    
-    // Current month days
-    for (let day = 1; day <= daysInMonth; day++) {
-      const date = new Date(year, month, day);
-      let classes = ['calendar-day'];
-      
-      if (this.isToday(date)) classes.push('today');
-      if (this.isSelected(date)) classes.push('selected');
-      if (this.hasEvents(date)) classes.push('has-events');
-      
-      html += `<div class="${classes.join(' ')}" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
-    }
-    
-    // Next month's leading days
-    const totalCells = Math.ceil((startingDayOfWeek + daysInMonth) / 7) * 7;
-    const remainingCells = totalCells - (startingDayOfWeek + daysInMonth);
-    
-    for (let day = 1; day <= remainingCells; day++) {
-      const date = new Date(year, month + 1, day);
-      html += `<div class="calendar-day other-month" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
-    }
-    
-    html += `</div>`; // Close calendar-grid
-    
-    // Add controls if enabled
-    if (this.#options.showControls) {
-      html += `
-        <div class="calendar-controls">
-          <input type="text" class="calendar-input" id="dateInput_${this.#container.id}" 
-                placeholder="Enter date (YYYY-MM-DD, timestamp, etc.)" />
-          <button class="calendar-button" onclick="calendar.setDateFromInput()">Set Date</button>
-          <button class="calendar-button" onclick="calendar.goToToday()">Today</button>
-          <div class="calendar-info">
-            <strong>Selected:</strong> ${this.#selectedDate ? this.formatDate(this.#selectedDate) : 'None'}<br>
-            <strong>Events:</strong> ${this.#eventDates.size} dates
-          </div>
-        </div>
-      `;
-    }
-    
-    html += `</div>`; // Close calendar-container
-    
-    this.#container.innerHTML = html;
+    const header = this.renderHeader(month, year)
+    const bodyGrid = this.renderBodyGrid(month, year)
+    const footer = this.renderFooter(month, year)
+    const calendar = document.createElement("div")
+          calendar.classList.add("calendar-container")
+          calendar.appendChild(header)
+          calendar.append(bodyGrid)
+    if (this.#options.showControls)
+          calendar.appendChild(footer)
+
+    this.#container.innerHTML = ""
+    this.#container.appendChild(calendar)
   }
 
   renderHeader(month, year) {
@@ -391,16 +328,32 @@ export default class PlainCalendar {
     return header
   }
 
+  renderFooter(month, year) {
+    if (!this.#options.showControls) return
+
+    const html = `
+    <div class="calendar-info">
+      <strong>Selected:</strong> ${this.#selectedDate ? this.formatDate(this.#selectedDate) : 'None'}<br>
+      <strong>Events:</strong> ${this.#eventDates.size} dates
+    </div>
+    `
+    const info = htmlToElement(html)
+    const footer = this.renderHeader(month, year)
+          footer.append(info)
+
+    return footer
+  }
+
   renderNavPrevNext(step) {
-    const nav = document.createElement("select")
+    const nav = document.createElement("button")
           nav.classList.add("calendar-nav")
     if (step === "prev") {
-      nav.onclick = this.previousMonth().bind(this)
-      nav.setAttribute('content','‹')
+      nav.onclick = this.previousMonth.bind(this)
+      nav.innerHTML = "&#9664;"
     }
     else if (step === "next") {
-      nav.onclick = this.nextMonth().bind(this)
-      nav.setAttribute('content','›')
+      nav.onclick = this.nextMonth.bind(this)
+      nav.innerHTML = "&#9654;"
     }
     return nav
   }
@@ -428,8 +381,58 @@ export default class PlainCalendar {
     return select
   }
 
-  renderBodyGrid() {
+  renderDayHeader() {
+    let dayNames = ``
+    this.dayNames.forEach(day => {
+      dayNames += `<div class="calendar-day-header">${day}</div>`;
+    });
+    return dayNames
+  }
 
+  renderBodyGrid(month, year) {
+    let html = `<div class="calendar-grid">`
+        html += this.renderDayHeader()
+ 
+    // Get first day of month and number of days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+    
+    // Get previous month info for padding
+    const prevMonth = new Date(year, month - 1, 0);
+    const daysInPrevMonth = prevMonth.getDate();
+
+    // Previous month's trailing days
+    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
+      const day = daysInPrevMonth - i;
+      const date = new Date(year, month - 1, day);
+      html += `<div class="calendar-day other-month" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+    }
+    
+    // Current month days
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      let classes = ['calendar-day'];
+      
+      if (this.isToday(date)) classes.push('today');
+      if (this.isSelected(date)) classes.push('selected');
+      if (this.hasEvents(date)) classes.push('has-events');
+      
+      html += `<div class="${classes.join(' ')}" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+    }
+    
+    // Next month's leading days
+    const totalCells = Math.ceil((startingDayOfWeek + daysInMonth) / 7) * 7;
+    const remainingCells = totalCells - (startingDayOfWeek + daysInMonth);
+    
+    for (let day = 1; day <= remainingCells; day++) {
+      const date = new Date(year, month + 1, day);
+      html += `<div class="calendar-day other-month" data-date="${day}" onclick="calendar.onDayClick(new Date(${date.getTime()}))">${day}</div>`;
+    }
+
+    html += `</div>`
+    return htmlToElement(html)
   }
 
   renderTime() {
