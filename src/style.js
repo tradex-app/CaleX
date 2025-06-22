@@ -91,6 +91,8 @@ const style = `
     --border-secondary: #333333;
     --border-tertiary: #2a2a2a;
     --border-accent: #ffb74d;
+
+    --border-day: 0;
     
     --shadow-primary: rgba(0, 0, 0, 0.3);
     --shadow-nav-hover: rgba(255, 255, 255, 0.1);
@@ -173,7 +175,7 @@ const style = `
   justify-content: center;
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  border: 1px solid var(--border-tertiary);
+  border: var(--border-day) solid var(--border-tertiary);
 }
 
 .calendar-day:hover {

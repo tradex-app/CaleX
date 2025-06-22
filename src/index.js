@@ -305,6 +305,8 @@ export default class PlainCalendar {
   render() {
     const year = this.#currentDate.getFullYear();
     const month = this.#currentDate.getMonth();
+    // const time = this.#currentDate.getT
+    const hoursMinutes = this.renderTime()
     const header = this.renderHeader(month, year)
     const bodyGrid = this.renderBodyGrid(month, year)
     const footer = this.renderFooter(month, year)
@@ -361,6 +363,14 @@ export default class PlainCalendar {
     return nav
   }
 
+  renderYear(year) {
+    const html = `<input type="number" clsss="calendar-year" placeholder="YYYY" min="0" max="3000" value="${year}">`
+    const input = htmlToElement(html)
+          input.onchange = this.setDateFromYearInput.bind(this)
+    this.#yearInput = input
+    return input
+  }
+
   renderMonth(month) {
     const input = this.renderSelect("month", this.#monthNames, month)
           input.onchange = this.setDateFromMonthInput.bind(this)
@@ -368,11 +378,11 @@ export default class PlainCalendar {
     return input
   }
 
-  renderYear(year) {
-    const html = `<input type="number" placeholder="YYYY" min="0" max="3000" value="${year}">`
+  renderTime(time) {
+    const html = `<input type="time" clsss="calendar-timer" value="${time}">`
     const input = htmlToElement(html)
-          input.onchange = this.setDateFromYearInput.bind(this)
-    this.#yearInput = input
+          // input.conchange =
+    this.#timeInput = input
     return input
   }
 
