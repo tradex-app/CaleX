@@ -99,7 +99,9 @@ export default class PlainCalendar {
   setLanguage(lang="en", translations) {
     if (!(this.#lang instanceof i18n)) {
       const trans = (isArrayOfType(translations, "object")) ? translations : languages
-      const calLanguages = [...languages, ...trans]
+      const merge = new Set([...languages, ...trans])
+      const calLanguages = Array.from(merge)
+
       this.#lang = new i18n(calLanguages)
     }
     if (this.#lang.has(lang)) {
