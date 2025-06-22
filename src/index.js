@@ -37,6 +37,8 @@ export default class PlainCalendar {
   #lang
   #monthNames = {}
   #dayNames = {}
+
+  #grid
   #timeInput
   #monthInput
   #yearInput
@@ -83,6 +85,7 @@ export default class PlainCalendar {
   init() {
     this.render();
 
+    // inject calendar styles into header only once!
     if (!PlainCalendar.#styleInjected) {
       const style = document.createElement('style');
       style.type = 'text/css';
@@ -170,7 +173,12 @@ export default class PlainCalendar {
     
     this.#selectedDate = parsedDate;
     this.#currentDate = new Date(parsedDate.getFullYear(), parsedDate.getMonth(), 1);
-    this.render();
+
+    // Only change view if selected date is in a different month
+    if (parsedDate.getMonth() !== this.#currentDate.getMonth() || 
+        parsedDate.getFullYear() !== this.#currentDate.getFullYear()) {
+      this.render()
+    }
     
     if (this.#options.onDateSelect) {
       this.#options.onDateSelect(parsedDate);
@@ -298,7 +306,17 @@ export default class PlainCalendar {
       return; // Don't allow past dates if option is set
     }
     
+    const selected = this.#grid.querySelector(".selected")
+    if (selected) {
+      const ts = selected.getAttribute("ts") * 1
+      if (ts !== date)
+        selected.classList.remove("selected")
+    }
     this.setDate(date);
+
+    const newSelected = this.#grid.querySelector(`[data-ts="${date}"]`)
+    if (newSelected)
+        newSelected.classList.add("selected")
   }
 
   onKeyDown(event) {
@@ -481,6 +499,7 @@ export default class PlainCalendar {
             day.onclick = this.onDayClick.bind(this)
           })
           grid.onKeyDown = this.onKeyDown.bind(this)
+    this.#grid = grid
     return grid
   }
   

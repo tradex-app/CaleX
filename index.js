@@ -14,6 +14,8 @@
         // Load events for new month
       }
     });
+
+    window.calendar = myCalendar
     
     // Add dates from your content API
     function loadContentDates(contentItems) {
