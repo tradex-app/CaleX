@@ -298,6 +298,21 @@ export default class PlainCalendar {
     
     this.setDate(date);
   }
+
+  onKeyDown(event) {
+    switch(event.key) {
+      case 'ArrowLeft':
+        // Navigate to previous day
+        break;
+      case 'ArrowRight':
+        // Navigate to next day
+        break;
+      case 'Enter':
+      case ' ':
+        // Select current focused date
+        break;
+    }
+  }
   
   /**
    * Render the calendar
@@ -463,6 +478,7 @@ export default class PlainCalendar {
           days.forEach((day) => {
             day.onclick = this.onDayClick.bind(this)
           })
+          grid.onKeyDown = this.onKeyDown.bind(this)
     return grid
   }
   
