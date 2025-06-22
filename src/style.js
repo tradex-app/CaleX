@@ -158,9 +158,8 @@ const style = `
   padding: 10px;
   text-align: center;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-secondary);
 }
 
 .calendar-day {
@@ -222,11 +221,11 @@ const style = `
 }
 
 .calendar-input {
-  width: 100%;
   padding: 8px;
   border: 1px solid var(--border-primary);
   border-radius: 4px;
-  margin-bottom: 10px;
+  margin-bottom: 0;
+  font-size: 18px;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: all 0.2s;
@@ -261,6 +260,16 @@ const style = `
   border-radius: 4px;
   font-size: 14px;
   color: var(--text-primary);
+}
+
+.calendar-time {
+  background-color: var(--bg-accent);
+  color: var(--text-on-accent);
+  // padding: 15px;
+  text-align: center;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 
 /* Theme Toggle Button Styles */

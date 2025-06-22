@@ -305,7 +305,6 @@ export default class PlainCalendar {
   render() {
     const year = this.#currentDate.getFullYear();
     const month = this.#currentDate.getMonth();
-    // const time = this.#currentDate.getT
     const hoursMinutes = this.renderTime()
     const header = this.renderHeader(month, year)
     const bodyGrid = this.renderBodyGrid(month, year)
@@ -316,6 +315,7 @@ export default class PlainCalendar {
           calendar.append(bodyGrid)
     if (this.#options.showControls)
           calendar.appendChild(footer)
+          calendar.append(hoursMinutes)
 
     this.#container.innerHTML = ""
     this.#container.appendChild(calendar)
@@ -364,7 +364,7 @@ export default class PlainCalendar {
   }
 
   renderYear(year) {
-    const html = `<input type="number" clsss="calendar-year" placeholder="YYYY" min="0" max="3000" value="${year}">`
+    const html = `<input type="number" class="calendar-year calendar-input" placeholder="YYYY" min="0" max="3000" value="${year}">`
     const input = htmlToElement(html)
           input.onchange = this.setDateFromYearInput.bind(this)
     this.#yearInput = input
@@ -374,16 +374,24 @@ export default class PlainCalendar {
   renderMonth(month) {
     const input = this.renderSelect("month", this.#monthNames, month)
           input.onchange = this.setDateFromMonthInput.bind(this)
+          input.classList.add("calendar-input")
     this.#monthInput = input
     return input
   }
 
-  renderTime(time) {
-    const html = `<input type="time" clsss="calendar-timer" value="${time}">`
-    const input = htmlToElement(html)
-          // input.conchange =
+  renderTime() {
+    const hours = this.#currentDate.getHours().toString().padStart(2, '0');
+    const minutes = this.#currentDate.getMinutes().toString().padStart(2, '0');
+    const html = `
+    <div class="calendar-time">
+      <input type="time" class="calendar-input calendar-timeinput" value="${hours}:${minutes}">
+    </div>
+    `
+    const time = htmlToElement(html)
+    const input = time.querySelector(`.calendar-timeinput`)
+          input.onchange = this.setDateFromTimeInput.bind(this)
     this.#timeInput = input
-    return input
+    return time
   }
 
   renderSelect(type, options, selected) {
@@ -457,28 +465,13 @@ export default class PlainCalendar {
           })
     return grid
   }
-
-  renderTime() {
-
-  }
   
-  /**
-   * Set date from input field
-   */
-  setDateFromInput() {
-    const input = document.getElementById(`dateInput_${this.#container.id}`);
-    if (input && input.value.trim()) {
-      const success = this.setDate(input.value.trim());
-      if (success) {
-        input.value = '';
-        input.style.borderColor = '#ddd';
-      } else {
-        input.style.borderColor = '#ff4444';
-        setTimeout(() => {
-          input.style.borderColor = '#ddd';
-        }, 2000);
-      }
-    }
+  setDateFromTimeInput(event){
+    const time = event.currentTarget.value
+    const [hours, minutes] = time.split(":")
+    this.#currentDate.setHours(hours, minutes)
+    this.render()
+    this.#timeInput.focus()
   }
 
   setDateFromMonthInput(event) {
