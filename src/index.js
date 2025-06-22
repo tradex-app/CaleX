@@ -25,6 +25,9 @@ const languages = [
 
 export default class PlainCalendar {
 
+  static #styleInjected = false
+
+
   #container
   #currentDate = new Date()
   #selectedDate = null
@@ -80,15 +83,14 @@ export default class PlainCalendar {
   init() {
     this.render();
 
-    // Create a new style element
-    const style = document.createElement('style');
-    style.type = 'text/css';
-
-    // Add the CSS to the style element
-    style.appendChild(document.createTextNode(css));
-
-    // Append the style element to the document head
-    document.head.appendChild(style);
+    if (!PlainCalendar.#styleInjected) {
+      const style = document.createElement('style');
+      style.type = 'text/css';
+      style.id = 'plain-calendar-styles';
+      style.appendChild(document.createTextNode(css));
+      document.head.appendChild(style);
+      PlainCalendar.#styleInjected = true;
+    }
   }
   
   setLanguage(lang="en", translations) {
