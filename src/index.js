@@ -54,6 +54,8 @@ export default class CaleX {
       onDateSelect: options?.onDateSelect || null,
       onMonthChange: options?.onMonthChange || null,
       showControls: options?.showControls !== false,
+      showTime: options?.showTime !== false,
+      showWeekNumbers: options?.showWeekNumbers !== false,
       allowPastDates: options?.allowPastDates !== true,
       language: options?.language || "en",
       languages: options?.languages || languages
@@ -259,6 +261,47 @@ export default class CaleX {
   getSelectedDate() {
     return this.#selectedDate ? new Date(this.#selectedDate) : null;
   }
+
+  /**
+   * Calculate the week number for a given date
+   * @param {Date} day - The date to calculate the week number for
+   * @param {string} first - First day of the week ('Sunday' or 'Monday'), defaults to 'Sunday'
+   * @returns {number} The week number (1-53)
+   */
+  getWeekNumber(day, first = 'Sunday') {
+    // Create a copy of the date to avoid modifying the original
+    const date = new Date(day.getTime());
+    
+    if (first === 'Monday') {
+      // ISO 8601 week numbering (Monday-based)
+      const thursday = new Date(date.getTime());
+      thursday.setDate(date.getDate() - ((date.getDay() + 6) % 7) + 3);
+      
+      const yearStart = new Date(thursday.getFullYear(), 0, 1);
+      const weekNumber = Math.ceil((((thursday - yearStart) / 86400000) + 1) / 7);
+      
+      return weekNumber;
+    } else {
+      // Sunday-based week numbering
+      const yearStart = new Date(date.getFullYear(), 0, 1);
+      const firstSunday = new Date(yearStart.getTime());
+      
+      // Find the first Sunday of the year
+      const daysToFirstSunday = (7 - yearStart.getDay()) % 7;
+      firstSunday.setDate(yearStart.getDate() + daysToFirstSunday);
+      
+      // If the date is before the first Sunday, it's week 1
+      if (date < firstSunday) {
+        return 1;
+      }
+      
+      // Calculate week number from first Sunday
+      const daysSinceFirstSunday = Math.floor((date - firstSunday) / (24 * 60 * 60 * 1000));
+      const weekNumber = Math.floor(daysSinceFirstSunday / 7) + 2;
+      
+      return weekNumber;
+    }
+  }
   
   /**
    * Check if a date has events
@@ -446,6 +489,8 @@ export default class CaleX {
 
   renderDayHeader() {
     let dayNames = ``
+    if (this.#options.showWeekNumbers)
+      dayNames += `<div class="calendar-day-header">Wk</div>`;
     this.dayNames.forEach(day => {
       dayNames += `<div class="calendar-day-header">${day}</div>`;
     });
@@ -453,9 +498,9 @@ export default class CaleX {
   }
 
   renderBodyGrid(month, year) {
-    let html = `<div class="calendar-grid">`
-        html += this.renderDayHeader()
- 
+    let html = `<div class="calendar-grid${this.#options.showWeekNumbers ? ' with-week-numbers' : ''}">`
+    html += this.renderDayHeader()
+    
     // Get first day of month and number of days
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
@@ -465,12 +510,23 @@ export default class CaleX {
     // Get previous month info for padding
     const prevMonth = new Date(year, month - 1, 0);
     const daysInPrevMonth = prevMonth.getDate();
-
+    
+    // Track current position for week number insertion
+    let cellCount = 0;
+    
     // Previous month's trailing days
     for (let i = startingDayOfWeek - 1; i >= 0; i--) {
       const day = daysInPrevMonth - i;
       const date = new Date(year, month - 1, day);
+      
+      // Insert week number at the beginning of each week
+      if (this.#options.showWeekNumbers && cellCount % 7 === 0) {
+        const weekNumber = this.getWeekNumber(date);
+        html += `<div class="calendar-week">${weekNumber}</div>`;
+      }
+      
       html += `<div class="calendar-day other-month" data-date="${day}" data-ts="${date.getTime()}">${day}</div>`;
+      cellCount++;
     }
     
     // Current month days
@@ -478,32 +534,48 @@ export default class CaleX {
       const date = new Date(year, month, day);
       let classes = ['calendar-day'];
       
+      // Insert week number at the beginning of each week
+      if (this.#options.showWeekNumbers && cellCount % 7 === 0) {
+        const weekNumber = this.getWeekNumber(date);
+        html += `<div class="calendar-week">${weekNumber}</div>`;
+      }
+      
       if (this.isToday(date)) classes.push('today');
       if (this.isSelected(date)) classes.push('selected');
       if (this.hasEvents(date)) classes.push('has-events');
       
       html += `<div class="${classes.join(' ')}" data-date="${day}" data-ts="${date.getTime()}">${day}</div>`;
+      cellCount++;
     }
     
     // Next month's leading days
-    // const totalCells = Math.ceil((startingDayOfWeek + daysInMonth) / 7) * 7;
     const remainingCells = 42 - (startingDayOfWeek + daysInMonth);
     
     for (let day = 1; day <= remainingCells; day++) {
       const date = new Date(year, month + 1, day);
+      
+      // Insert week number at the beginning of each week
+      if (this.#options.showWeekNumbers && cellCount % 7 === 0) {
+        const weekNumber = this.getWeekNumber(date);
+        html += `<div class="calendar-week">${weekNumber}</div>`;
+      }
+      
       html += `<div class="calendar-day other-month" data-date="${day}" data-ts="${date.getTime()}">${day}</div>`;
+      cellCount++;
     }
-
+    
     html += `</div>`
     const grid = htmlToElement(html)
     const days = grid.querySelectorAll(`.calendar-day`)
-          days.forEach((day) => {
-            day.onclick = this.onDayClick.bind(this)
-          })
-          grid.onKeyDown = this.onKeyDown.bind(this)
+    
+    days.forEach((day) => {
+      day.onclick = this.onDayClick.bind(this)
+    })
+    
+    grid.onKeyDown = this.onKeyDown.bind(this)
     this.#grid = grid
     return grid
-  }
+  }  
   
   setDateFromTimeInput(event){
     const time = event.currentTarget.value

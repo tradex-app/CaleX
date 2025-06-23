@@ -161,6 +161,11 @@ const style = `
   background-color: var(--bg-primary);
 }
 
+/* Adjust grid columns when week numbers are shown */
+.calendar-grid.with-week-numbers {
+  grid-template-columns: auto repeat(7, 1fr);
+}
+
 .calendar-day-header {
   background-color: var(--bg-tertiary);
   padding: .75em;
@@ -168,6 +173,21 @@ const style = `
   font-weight: bold;
   font-size: 1.25em;
   color: var(--text-secondary);
+}
+
+/* Week number styles */
+.calendar-week {
+  /* background-color: var(--bg-tertiary); */
+  color: var(--text-secondary);
+  opacity: 0.5;
+  padding: 12px 8px;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  font-weight: normal;
+  /* border-right: 1px solid var(--border-secondary); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .calendar-day {

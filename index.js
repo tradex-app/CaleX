@@ -4,6 +4,7 @@
     // Initialize calendar with custom options
     const myCalendar = new CaleX(element, {
       showControls: false,
+      showWeekNumbers: true,
       allowPastDates: false,
       onDateSelect: function(date) {
         console.log('Selected date:', date);
