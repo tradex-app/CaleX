@@ -2,6 +2,13 @@
 const style = `
 /* CSS Custom Properties for Light and Dark Themes */
 :root {
+  --calendar-max-width: 35em;
+
+  /* Font Definitions */
+  --calendar-font-family: DejaVu Sans, Verdana, Arial, sans-serif;
+  --calendar-font-size: 1em;
+
+
   /* Light Theme Colors */
   --bg-primary: #ffffff;
   --bg-secondary: #f9f9f9;
@@ -103,8 +110,9 @@ const style = `
 
 /* Updated Calendar Styles Using CSS Variables */
 .calendar-container {
-  font-family: Arial, sans-serif;
-  max-width: 400px;
+  font-family: var(--calendar-font-family);
+  font-size: var(--calendar-font-size);
+  max-width: var(--calendar-max-width);
   margin: 20px auto;
   border: 1px solid var(--border-primary);
   border-radius: 8px;
@@ -118,7 +126,7 @@ const style = `
 .calendar-header {
   background-color: var(--bg-accent);
   color: var(--text-on-accent);
-  padding: 15px;
+  padding: 1em;
   text-align: center;
   display: flex;
   justify-content: space-between;
@@ -129,9 +137,9 @@ const style = `
   background: none;
   border: none;
   color: var(--text-on-accent);
-  font-size: 18px;
+  font-size: 1.5em;
   cursor: pointer;
-  padding: 5px 10px;
+  padding: .5em 1em;
   border-radius: 4px;
   transition: background-color 0.2s;
 }
@@ -141,9 +149,9 @@ const style = `
 }
 
 .calendar-title {
-  font-size: 18px;
+  font-size: 1.5em;
   font-weight: bold;
-  margin: 0 15px;
+  margin: 0 1.5em;
   color: var(--text-on-accent);
 }
 
@@ -155,20 +163,20 @@ const style = `
 
 .calendar-day-header {
   background-color: var(--bg-tertiary);
-  padding: 10px;
+  padding: .75em;
   text-align: center;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 1.25em;
   color: var(--text-secondary);
 }
 
 .calendar-day {
-  padding: 12px;
+  padding: 1em;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
   position: relative;
-  min-height: 40px;
+  min-height: 2.5em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,13 +223,13 @@ const style = `
 }
 
 .calendar-controls {
-  padding: 15px;
+  padding: 1.25em;
   background-color: var(--bg-secondary);
   border-top: 1px solid var(--border-secondary);
 }
 
 .calendar-input {
-  padding: 8px;
+  padding: .5em;
   border: 1px solid var(--border-primary);
   border-radius: 4px;
   margin-bottom: 0;
@@ -241,11 +249,11 @@ const style = `
   background-color: var(--bg-accent);
   color: var(--text-on-accent);
   border: none;
-  padding: 8px 12px;
+  padding: 8px 1em;
   border-radius: 4px;
   cursor: pointer;
-  margin-right: 5px;
-  margin-bottom: 5px;
+  margin-right: .5em;
+  margin-bottom: .5em;
   transition: background-color 0.2s;
 }
 
@@ -254,18 +262,17 @@ const style = `
 }
 
 .calendar-info {
-  margin-top: 10px;
-  padding: 10px;
+  margin-top: 1em;
+  padding: 1em;
   background-color: var(--bg-info);
   border-radius: 4px;
-  font-size: 14px;
+  font-size: 1em;
   color: var(--text-primary);
 }
 
 .calendar-time {
   background-color: var(--bg-accent);
   color: var(--text-on-accent);
-  // padding: 15px;
   text-align: center;
   display: flex;
   justify-content: space-around;
