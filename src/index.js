@@ -23,7 +23,7 @@ const languages = [
   english
 ]
 
-export default class PlainCalendar {
+export default class CaleX {
 
   static #styleInjected = false
 
@@ -46,7 +46,7 @@ export default class PlainCalendar {
 
   constructor(container, options = {}) {
     if (!isHTMLElement(container))
-      throw new Error("Calendar expects a valid HTML containter element")
+      throw new Error("Calendar expects a valid HTML container element")
 
     this.#container = container;
     this.#options = {
@@ -86,13 +86,13 @@ export default class PlainCalendar {
     this.render();
 
     // inject calendar styles into header only once!
-    if (!PlainCalendar.#styleInjected) {
+    if (!CaleX.#styleInjected) {
       const style = document.createElement('style');
       style.type = 'text/css';
       style.id = 'plain-calendar-styles';
       style.appendChild(document.createTextNode(css));
       document.head.appendChild(style);
-      PlainCalendar.#styleInjected = true;
+      CaleX.#styleInjected = true;
     }
   }
   
@@ -517,12 +517,14 @@ export default class PlainCalendar {
     const month = event.currentTarget.value
     this.#currentDate.setMonth(month)
     this.render()
+    this.#monthInput.focus()
   }
 
   setDateFromYearInput(event) {
     const year = event.currentTarget.value
     this.#currentDate.setFullYear(year)
     this.render()
+    this.#yearInput.focus()
   }
   
   /**

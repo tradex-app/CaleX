@@ -1,8 +1,8 @@
-    import PlainCalendar from "./src/index"
+    import CaleX from "./src/index"
 
     const element = document.getElementById("myCalendar")
     // Initialize calendar with custom options
-    const myCalendar = new PlainCalendar(element, {
+    const myCalendar = new CaleX(element, {
       showControls: false,
       allowPastDates: false,
       onDateSelect: function(date) {
