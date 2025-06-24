@@ -22,11 +22,13 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "./bin/build.sh",
     "preview": "vite preview",
     "test": "vitest"
   },
   "devDependencies": {
+    "jsdom": "^26.1.0",
+    "rollup-plugin-cleanup": "^3.2.1",
     "vite": "^6.3.5",
     "vitest": "^3.2.3"
   },
