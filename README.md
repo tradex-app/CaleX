@@ -227,7 +227,11 @@ const calendar = new CaleX(container, {
 
 ## Styling
 
-The calendar includes default styles, but you can customize the appearance using CSS:
+The calendar includes default styles, but you can customize the appearance using CSS. The entire calendar scales from the `font-size` inherited from the parent element.
+
+Overriding the [CaleX CSS variables](https://github.com/tradex-app/CaleX/blob/master/src/style.js) allows you to apply your own custom styling to the calendar.
+
+Some of the core CSS classes are:
 
 ```css
 .calendar-container {
