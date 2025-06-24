@@ -1,15 +1,46 @@
 {
   "name": "CaleX",
-  "private": true,
-  "version": "0.0.0",
+  "description": "A flexible, lightweight JavaScript calendar component with internationalization support, event highlighting, and customizable features.",
+  "private": false,
+  "version": "0.21.0",
   "type": "module",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md",
+    "CONTRIBUTING.md",
+    "CHANGELOG.md"
+  ],
+  "main": "./dist/calex.umd.js",
+  "module": "./dist/calex.es.js",
+  "exports": {
+    ".": {
+      "types": "./dist/calex.d.ts",
+      "import": "./dist/calex.es.js",
+      "require": "./dist/calex.umd.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest"
   },
   "devDependencies": {
     "vite": "^6.3.5",
     "vitest": "^3.2.3"
+  },
+  "keywords": [
+    "calendar",
+    "kalendar",
+    "date picker",
+    "date"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tradex-app/CaleX"
+  },
+  "bugs": {
+    "url": "https://github.com/tradex-app/CaleX/issues"
   }
 }
