@@ -2,6 +2,8 @@
 
 A flexible, lightweight JavaScript calendar component with internationalization support, event highlighting, and customizable features.
 
+![Calex Calendar](./assets/CaleX-calendar.png)
+
 ## Features
 
 - 📅 **Interactive Calendar**: Navigate between months and years
