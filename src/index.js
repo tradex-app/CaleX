@@ -1,7 +1,7 @@
 
 import { htmlToElement, htmlToElements, isHTMLElement } from "./utils/DOM";
 import i18n from "./i18n";
-import { isArrayOfType, isNumber, isString } from "./utils/typeChecks";
+import { isArrayOfType, isFunction, isNumber, isString } from "./utils/typeChecks";
 import css from "./style";
 import languages from "./i18n/languages";
 
@@ -52,9 +52,9 @@ export default class CaleX {
     this.#container = container;
     this.#options = {
       ...options,
-      onDateSelect: options?.onDateSelect || null,
-      onMonthChange: options?.onMonthChange || null,
-      showControls: options?.showControls !== false,
+      onDateSelect: (isFunction(options?.onDateSelect)) ? options.onDateSelect : null,
+      onMonthChange: (isFunction(options?.onMonthChange)) ? options.onMonthChange : null,
+      showControls: options?.showControls === true,
       showTime: options?.showTime !== false,
       showWeekNumbers: options?.showWeekNumbers !== false,
       weekStartsSunday: options?.weekStartsSunday !== false,
