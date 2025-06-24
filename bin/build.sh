@@ -1,5 +1,6 @@
 vite build &&
 cp ./types/calex.d.ts ./dist &&
+cp ./src/i18n/languages.js ./dist &&
 cp ./README.md ./dist &&
 cp ./LICENSE ./dist &&
 cp ./CONTRIBUTING.md ./dist &&

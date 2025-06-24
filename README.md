@@ -56,6 +56,7 @@ const calendar = new CaleX(container, {
 | `showControls` | Boolean | `true` | Show navigation controls |
 | `showTime` | Boolean | `true` | Show time picker |
 | `showWeekNumbers` | Boolean | `false` | Display week numbers |
+| `weekStartsSunday` | Boolean | `true` | Start the week Sunday true, Monday false |
 | `allowPastDates` | Boolean | `false` | Allow selection of past dates |
 | `language` | String | `"en"` | Language code for localization |
 | `languages` | Array | `[]` | Custom language definitions |
@@ -169,11 +170,20 @@ calendar.dayNames         // Array
 
 ### Using Built-in Languages
 
+CaleX comes preconfigured with the following languages:
+
+* English
+* French
+* German
+* Russian
+* Spanish
+
 ```javascript
 const calendar = new CaleX(container, {
   language: 'en' // Currently supports English
 });
 ```
+Further languages can be added by copying and modify the `languages.js` file found in npm package or in the Git repo `./i18n/languages.js`
 
 ### Adding Custom Languages
 

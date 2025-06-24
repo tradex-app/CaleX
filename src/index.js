@@ -3,6 +3,7 @@ import { htmlToElement, htmlToElements, isHTMLElement } from "./utils/DOM";
 import i18n from "./i18n";
 import { isArrayOfType, isNumber, isString } from "./utils/typeChecks";
 import css from "./style";
+import languages from "./i18n/languages";
 
 const monthNames = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -19,9 +20,9 @@ const english = {
   }
 }
 
-const languages = [
-  english
-]
+// const languages = [
+//   english
+// ]
 
 export default class CaleX {
 

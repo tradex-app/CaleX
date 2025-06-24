@@ -7,6 +7,7 @@
       showWeekNumbers: true,
       weekStartsSunday: false,
       allowPastDates: false,
+      // language: "ru",
       onDateSelect: function(date) {
         console.log('Selected date:', date);
         // Handle date selection
