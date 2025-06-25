@@ -3,12 +3,9 @@ const style = `
 /* CSS Custom Properties for Light and Dark Themes */
 :root {
   --calendar-max-width: 35em;
-
   /* Font Definitions */
   --calendar-font-family: DejaVu Sans, Verdana, Arial, sans-serif;
   --calendar-font-size: 1em;
-
-
   /* Light Theme Colors */
   --bg-primary: #ffffff;
   --bg-secondary: #f9f9f9;
@@ -21,6 +18,13 @@ const style = `
   --bg-other-month: #fafafa;
   --bg-has-events: #fff3cd;
   --bg-info: #e8f5e8;
+  
+  /* Hover state colors */
+  --bg-hover-default: #e8f5e8;
+  --bg-hover-today: #1976d2;
+  --bg-hover-selected: #45a049;
+  --bg-hover-events: #fff8dc;
+  --bg-hover-other-month: #f0f0f0;
   
   --text-primary: #333333;
   --text-secondary: #666666;
@@ -36,6 +40,7 @@ const style = `
   
   --shadow-primary: rgba(0, 0, 0, 0.1);
   --shadow-nav-hover: rgba(255, 255, 255, 0.2);
+  --shadow-hover: rgba(0, 0, 0, 0.15);
   
   --event-indicator: #ff9800;
 }
@@ -54,6 +59,13 @@ const style = `
   --bg-has-events: #4a3c1a;
   --bg-info: #2e4a2e;
   
+  /* Dark theme hover states */
+  --bg-hover-default: #2e4a2e;
+  --bg-hover-today: #1976d2;
+  --bg-hover-selected: #5cb85c;
+  --bg-hover-events: #5a4a2a;
+  --bg-hover-other-month: #333333;
+  
   --text-primary: #e0e0e0;
   --text-secondary: #b0b0b0;
   --text-muted: #707070;
@@ -68,6 +80,7 @@ const style = `
   
   --shadow-primary: rgba(0, 0, 0, 0.3);
   --shadow-nav-hover: rgba(255, 255, 255, 0.1);
+  --shadow-hover: rgba(0, 0, 0, 0.4);
   
   --event-indicator: #ffb74d;
 }
@@ -87,6 +100,13 @@ const style = `
     --bg-has-events: #4a3c1a;
     --bg-info: #2e4a2e;
     
+    /* Dark theme hover states for auto theme */
+    --bg-hover-default: #2e4a2e;
+    --bg-hover-today: #1976d2;
+    --bg-hover-selected: #5cb85c;
+    --bg-hover-events: #5a4a2a;
+    --bg-hover-other-month: #333333;
+    
     --text-primary: #e0e0e0;
     --text-secondary: #b0b0b0;
     --text-muted: #707070;
@@ -98,11 +118,11 @@ const style = `
     --border-secondary: #333333;
     --border-tertiary: #2a2a2a;
     --border-accent: #ffb74d;
-
     --border-day: 0;
     
     --shadow-primary: rgba(0, 0, 0, 0.3);
     --shadow-nav-hover: rgba(255, 255, 255, 0.1);
+    --shadow-hover: rgba(0, 0, 0, 0.4);
     
     --event-indicator: #ffb74d;
   }
@@ -177,14 +197,12 @@ const style = `
 
 /* Week number styles */
 .calendar-week {
-  /* background-color: var(--bg-tertiary); */
   color: var(--text-secondary);
   opacity: 0.5;
   padding: 12px 8px;
   text-align: center;
   font-size: var(--font-size-sm);
   font-weight: normal;
-  /* border-right: 1px solid var(--border-secondary); */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,7 +212,7 @@ const style = `
   padding: 1em;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   position: relative;
   min-height: 2.5em;
   display: flex;
@@ -205,30 +223,61 @@ const style = `
   border: var(--border-day) solid var(--border-tertiary);
 }
 
+/* Base hover state for all calendar days */
 .calendar-day:hover {
-  background-color: var(--bg-hover);
+  background-color: var(--bg-hover-default);
+  box-shadow: 0 2px 8px var(--shadow-hover);
+  transform: translateY(-1px);
+  z-index: 1;
 }
 
+/* Other month days */
 .calendar-day.other-month {
   color: var(--text-muted);
   background-color: var(--bg-other-month);
 }
 
+.calendar-day.other-month:hover {
+  background-color: var(--bg-hover-other-month);
+  color: var(--text-secondary);
+}
+
+/* Selected day */
 .calendar-day.selected {
   background-color: var(--bg-selected);
   color: var(--text-on-selected);
   font-weight: bold;
 }
 
+.calendar-day.selected:hover {
+  background-color: var(--bg-hover-selected);
+  box-shadow: 0 4px 12px var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Today */
 .calendar-day.today {
   background-color: var(--bg-today);
   color: var(--text-on-today);
   font-weight: bold;
 }
 
+.calendar-day.today:hover {
+  background-color: var(--bg-hover-today);
+  box-shadow: 0 4px 12px var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+/* Days with events */
 .calendar-day.has-events {
   background-color: var(--bg-has-events);
   border-color: var(--border-accent);
+}
+
+.calendar-day.has-events:hover {
+  background-color: var(--bg-hover-events);
+  border-color: var(--border-accent);
+  box-shadow: 0 3px 10px var(--shadow-hover);
 }
 
 .calendar-day.has-events::after {
@@ -240,6 +289,36 @@ const style = `
   height: 6px;
   background-color: var(--event-indicator);
   border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.calendar-day.has-events:hover::after {
+  width: 8px;
+  height: 8px;
+  bottom: 3px;
+  right: 3px;
+}
+
+/* Combined states hover effects */
+.calendar-day.today.selected:hover {
+  background-color: var(--bg-hover-selected);
+  box-shadow: 0 4px 15px var(--shadow-hover);
+}
+
+.calendar-day.today.has-events:hover {
+  background-color: var(--bg-hover-today);
+  box-shadow: 0 4px 15px var(--shadow-hover);
+}
+
+.calendar-day.selected.has-events:hover {
+  background-color: var(--bg-hover-selected);
+  box-shadow: 0 4px 15px var(--shadow-hover);
+}
+
+.calendar-day.today.selected.has-events:hover {
+  background-color: var(--bg-hover-selected);
+  box-shadow: 0 5px 20px var(--shadow-hover);
+  transform: translateY(-3px);
 }
 
 .calendar-controls {
@@ -319,6 +398,7 @@ const style = `
   background-color: var(--bg-accent-hover);
   transform: scale(1.05);
 }
+
 `
 
 export default style
