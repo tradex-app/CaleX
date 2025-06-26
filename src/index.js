@@ -465,7 +465,7 @@ export default class CaleX {
           newSelected.classList.add("selected")
 
           // Add accessibility announcement
-          this.announceSelection(new Date(date));
+          // this.announceSelection(new Date(date));
       }
   }
 
@@ -608,7 +608,7 @@ export default class CaleX {
 
           this.#container.innerHTML = ""
           this.#container.appendChild(calendar)
-          this.#container.appendChild(themeToggle)
+          // this.#container.appendChild(themeToggle)
   }
 
   /**
