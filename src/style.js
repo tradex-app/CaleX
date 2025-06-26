@@ -208,12 +208,14 @@ const style = `
 }
 
 .calendar-day-header {
-  background-color: var(--bg-tertiary);
+  box-sizing: border-box;
+  width: 4em;
   padding: .75em;
   text-align: center;
   font-weight: bold;
   font-size: 1.25em;
   color: var(--text-secondary);
+  background-color: var(--bg-tertiary);
 }
 
 /* Week number styles */
@@ -511,21 +513,19 @@ const style = `
 
 /* WEEKEND STYLING - If you want to distinguish weekends */
 .calendar-day.weekend {
-  background-color: color-mix(in srgb, var(--bg-secondary) 20%, var(--bg-primary) 100%) !important;
+  background-color: color-mix(in srgb, var(--bg-secondary) 20%, var(--bg-primary) 100%);
 }
 
 .calendar-day.other-month.weekend {
-    background-color: color-mix(in srgb, var(--bg-other-month) 100%, var(--bg-primary) 50%) !important;
+  background-color: color-mix(in srgb, var(--bg-other-month) 100%, var(--bg-primary) 50%);
 }
 
 .calendar-day.weekend.has-events {
   background-color: var(--bg-has-events);
-  border-left: 3px solid var(--border-accent);
 }
 
 .calendar-day.weekend.today.has-events {
   background-color: var(--bg-today-events);
-  border-left: 3px solid var(--border-today-events);
 }
 
 /* HIGH PRIORITY EVENTS - Additional class for important events */
