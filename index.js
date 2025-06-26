@@ -5,7 +5,6 @@
     const myCalendar = new CaleX(element, {
       showControls: false,
       showWeekNumbers: true,
-      weekStartsSunday: false,
       allowPastDates: false,
       // language: "ru",
       onDateSelect: function(date) {

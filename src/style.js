@@ -511,7 +511,11 @@ const style = `
 
 /* WEEKEND STYLING - If you want to distinguish weekends */
 .calendar-day.weekend {
-  background-color: var(--bg-secondary);
+  background-color: color-mix(in srgb, var(--bg-secondary) 20%, var(--bg-primary) 100%) !important;
+}
+
+.calendar-day.other-month.weekend {
+    background-color: color-mix(in srgb, var(--bg-other-month) 100%, var(--bg-primary) 50%) !important;
 }
 
 .calendar-day.weekend.has-events {
