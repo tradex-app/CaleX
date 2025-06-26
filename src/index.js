@@ -595,6 +595,8 @@ export default class CaleX {
 
       const calendar = document.createElement("div")
       calendar.classList.add("calendar-container")
+      if (this.#options.showWeekNumbers)
+        calendar.classList.add("show-week-numbers")
 
       calendar.appendChild(header)
       calendar.append(bodyGrid)

@@ -2,7 +2,9 @@
 const style = `
 /* CSS Custom Properties for Light and Dark Themes */
 :root {
-  --calendar-max-width: 35em;
+  --calendar-max-width: 40em;
+  --calendar-min-width: 35em;
+
   /* Font Definitions */
   --calendar-font-family: DejaVu Sans, Verdana, Arial, sans-serif;
   --calendar-font-size: 1em;
@@ -153,7 +155,7 @@ const style = `
 .calendar-container {
   font-family: var(--calendar-font-family);
   font-size: var(--calendar-font-size);
-  max-width: var(--calendar-max-width);
+  width: var(--calendar-min-width);
   margin: 20px auto;
   border: 1px solid var(--border-primary);
   border-radius: 8px;
@@ -162,6 +164,10 @@ const style = `
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: all 0.3s ease;
+}
+
+.calendar-container.show-week-numbers {
+  width: var(--calendar-max-width);
 }
 
 .calendar-header {
