@@ -29,18 +29,23 @@ export default class CaleX {
   #currentDate = new Date()
   #selectedDate = null
   #eventListeners = new Map();
-  #eventDates = new Map() // Changed to Map to store event metadata
-  #priorityEventDates = new Set() // Store high priority events
+  #eventDates = new Map()
+  #priorityEventDates = new Set()
   #options = {}
   #language = "en"
   #lang
   #monthNames = {}
   #dayNames = {}
+  
+  // DOM element references for selective updates
   #grid
   #timeInput
   #monthInput
   #yearInput
-
+  #calendarContainer
+  #header
+  #footer
+  #timeContainer
 
   constructor(container, options = {}) {
     if (!isHTMLElement(container))
@@ -124,6 +129,10 @@ export default class CaleX {
     // 'auto' uses CSS media queries, so no attribute needed
 
     this.#options.theme = theme;
+  }
+
+  getTheme() {
+    return this.#options.theme;
   }
 
   /**
@@ -590,7 +599,7 @@ export default class CaleX {
 
       const hoursMinutes = this.renderTime()
       const header = this.renderHeader(month, year)
-      const bodyGrid = this.renderBodyGrid(month, year)
+      const dateGrid = this.renderDateGrid(month, year)
       const footer = this.renderFooter(month, year)
       const themeToggle = this.renderThemeToggle()
 
@@ -600,7 +609,7 @@ export default class CaleX {
         calendar.classList.add("show-week-numbers")
 
       calendar.appendChild(header)
-      calendar.append(bodyGrid)
+      calendar.append(dateGrid)
 
       if (this.#options.showControls)
           calendar.appendChild(footer)
@@ -638,142 +647,135 @@ export default class CaleX {
   }
 
   renderHeader(month, year) {
-      const navPrev = this.renderNavPrevNext("prev")
-      const monthSelect = this.renderMonth(month)
-      const yearSelect = this.renderYear(year)
-      const navNext = this.renderNavPrevNext("next")
+    const navPrev = this.renderNavPrevNext("prev")
+    const monthSelect = this.renderMonth(month)
+    const yearSelect = this.renderYear(year)
+    const navNext = this.renderNavPrevNext("next")
 
-      const header = document.createElement("div")
-      header.classList.add("calendar-header")
-      header.append(navPrev)
-      header.append(monthSelect)
-      header.append(yearSelect)
-      header.append(navNext)
+    const header = document.createElement("div")
+    header.classList.add("calendar-header")
+    header.append(navPrev)
+    header.append(monthSelect)
+    header.append(yearSelect)
+    header.append(navNext)
 
-      return header
+    return header
   }
 
   renderFooter(month, year) {
-      const eventCount = this.#eventDates.size;
-      const priorityCount = this.#priorityEventDates.size;
-
-      const html = `
-      <div class="calendar-controls">
-      <button class="calendar-button" onclick="this.parentNode.parentNode.parentNode.querySelector('.calendar-grid [data-ts]').click()">Today</button>
-      <button class="calendar-button" onclick="this.dispatchEvent(new CustomEvent('clear-events', {bubbles: true}))">Clear Events</button>
-      </div>
-      <div class="calendar-info">
-      <strong>Selected:</strong> ${this.#selectedDate ? this.formatDate(this.#selectedDate) : 'None'}<br>
-      <strong>Events:</strong> ${eventCount} dates${priorityCount > 0 ? ` (${priorityCount} priority)` : ''}<br>
-      <strong>Theme:</strong> ${this.#options.theme}
-      </div>
-      `
-
-      const footer = htmlToElement(`<div class="calendar-footer">${html}</div>`)
-
-      // Add event listeners
-      footer.addEventListener('clear-events', () => {
-          this.clearEventDates();
-      });
-
-      const todayButton = footer.querySelector('.calendar-button');
-      todayButton.onclick = () => {
-          this.goToToday();
-          const today = new Date();
-          const todayElement = this.#grid.querySelector(`[data-ts="${today.setHours(0,0,0,0)}"]`);
-          if (todayElement) {
-              todayElement.focus();
-          }
-      };
-
-      return footer
+    const eventCount = this.#eventDates.size;
+    const priorityCount = this.#priorityEventDates.size;
+    const html = `
+    <div class="calendar-controls">
+    <button class="calendar-button" onclick="this.parentNode.parentNode.parentNode.querySelector('.calendar-grid [data-ts]').click()">Today</button>
+    <button class="calendar-button" onclick="this.dispatchEvent(new CustomEvent('clear-events', {bubbles: true}))">Clear Events</button>
+    </div>
+    <div class="calendar-info">
+    <strong>Selected:</strong> ${this.#selectedDate ? this.formatDate(this.#selectedDate) : 'None'}<br>
+    <strong>Events:</strong> ${eventCount} dates${priorityCount > 0 ? ` (${priorityCount} priority)` : ''}<br>
+    <strong>Theme:</strong> ${this.#options.theme}
+    </div>
+    `
+    const footer = htmlToElement(`<div class="calendar-footer">${html}</div>`)
+    
+    footer.addEventListener('clear-events', () => {
+      this.clearEventDates();
+    });
+    
+    const todayButton = footer.querySelector('.calendar-button');
+    todayButton.onclick = () => {
+      this.goToToday();
+      const today = new Date();
+      const todayElement = this.#grid.querySelector(`[data-ts="${today.setHours(0,0,0,0)}"]`);
+      if (todayElement) {
+        todayElement.focus();
+      }
+    };
+    
+    return footer
   }
 
   renderNavPrevNext(step) {
-      const nav = document.createElement("button")
-      nav.classList.add("calendar-nav")
-      nav.setAttribute('aria-label', step === 'prev' ? 'Previous month' : 'Next month');
+    const nav = document.createElement("button")
+    nav.classList.add("calendar-nav")
+    nav.setAttribute('aria-label', step === 'prev' ? 'Previous month' : 'Next month');
 
-      if (step === "prev") {
-          nav.onclick = this.previousMonth.bind(this)
-          nav.innerHTML = "&#9664;"
-      }
-      else if (step === "next") {
-          nav.onclick = this.nextMonth.bind(this)
-          nav.innerHTML = "&#9654;"
-      }
+    if (step === "prev") {
+      nav.onclick = this.previousMonth.bind(this)
+      nav.innerHTML = "&#9664;"
+    }
+    else if (step === "next") {
+      nav.onclick = this.nextMonth.bind(this)
+      nav.innerHTML = "&#9654;"
+    }
 
-      return nav
+    return nav
   }
 
   renderYear(year) {
-      const html = `<input type="number" class="calendar-year calendar-input" placeholder="YYYY" min="0" max="3000" value="${year}" aria-label="Year">`
-      const input = htmlToElement(html)
-      input.onchange = this.setDateFromYearInput.bind(this)
-      this.#yearInput = numberInput.build(input).container
-      return this.#yearInput
+    const html = `<input type="number" class="calendar-year calendar-input" placeholder="YYYY" min="0" max="3000" value="${year}" aria-label="Year">`
+    const input = htmlToElement(html)
+    input.onchange = this.setDateFromYearInput.bind(this)
+    this.#yearInput = numberInput.build(input).container
+    return this.#yearInput
   }
 
   renderMonth(month) {
-      const input = this.renderSelect("month", this.#monthNames, month)
-      input.onchange = this.setDateFromMonthInput.bind(this)
-      input.classList.add("calendar-input")
-      input.setAttribute('aria-label', 'Month');
-      this.#monthInput = input
-      return input
+    const input = this.renderSelect("month", this.#monthNames, month)
+    input.onchange = this.setDateFromMonthInput.bind(this)
+    input.classList.add("calendar-input")
+    input.setAttribute('aria-label', 'Month');
+    this.#monthInput = input
+    return input
   }
 
   renderTime() {
-      if (!this.#options.showTime) return document.createElement('div');
+    if (!this.#options.showTime) return document.createElement('div');
+    
+    const hours = this.#currentDate.getHours().toString().padStart(2, '0');
+    const minutes = this.#currentDate.getMinutes().toString().padStart(2, '0');
+    const html = `
+    <div class="calendar-time">
+    <input type="time" class="calendar-input calendar-timeinput" value="${hours}:${minutes}" aria-label="Time">
+    </div>
+    `
+    const time = htmlToElement(html)
+    const input = time.querySelector(`.calendar-timeinput`)
+    input.onchange = this.setDateFromTimeInput.bind(this)
+    this.#timeInput = input
 
-      const hours = this.#currentDate.getHours().toString().padStart(2, '0');
-      const minutes = this.#currentDate.getMinutes().toString().padStart(2, '0');
-
-      const html = `
-      <div class="calendar-time">
-      <input type="time" class="calendar-input calendar-timeinput" value="${hours}:${minutes}" aria-label="Time">
-      </div>
-      `
-
-      const time = htmlToElement(html)
-      const input = time.querySelector(`.calendar-timeinput`)
-      input.onchange = this.setDateFromTimeInput.bind(this)
-      this.#timeInput = input
-
-      return time
+    return time
   }
 
   renderSelect(type, options, selected) {
-      const select = document.createElement('select')
-      select.classList.add(`calendar-${type}`)
+    const select = document.createElement('select')
+    select.classList.add(`calendar-${type}`)
 
-      for (let name of options) {
-          let text = name.charAt(0).toUpperCase() + name.slice(1);
-          let value = options.indexOf(name)
-          let option = new Option(text, value)
-          if (value === selected) option.selected = true
-              select.appendChild(option);
-      }
+    for (let name of options) {
+      let text = name.charAt(0).toUpperCase() + name.slice(1);
+      let value = options.indexOf(name)
+      let option = new Option(text, value)
+      if (value === selected) option.selected = true
+      select.appendChild(option);
+    }
 
-      return select
+    return select
   }
 
   renderDayHeader() {
-      let dayNames = ``
-      if (this.#options.showWeekNumbers)
-          dayNames += `<div class="calendar-day-header">Wk</div>`;
-
-      this.dayNames.forEach(day => {
-          dayNames += `<div class="calendar-day-header">${day}</div>`;
-      });
-
-      return dayNames
+    let dayNames = ``
+    if (this.#options.showWeekNumbers)
+      dayNames += `<div class="calendar-day-header">Wk</div>`;
+    this.dayNames.forEach(day => {
+      dayNames += `<div class="calendar-day-header">${day}</div>`;
+    });
+    return dayNames
   }
 
   /**
-   * Enhanced body grid rendering with new styling classes
+   * Dates grid rendering with new styling classes
    */
-  renderBodyGrid(month, year) {
+  renderDateGrid(month, year) {
     let html = `<div class="calendar-grid${this.#options.showWeekNumbers ? ' with-week-numbers' : ''}">`
     html += this.renderDayHeader()
     
@@ -798,7 +800,7 @@ export default class CaleX {
     
     // Previous month's trailing days
     for (let i = startingDayOfWeek; i > 0; i--) {
-      const day = daysInPrevMonth - i + 1;  // FIX: Correct calculation
+      const day = daysInPrevMonth - i + 1;
       const date = new Date(year, month - 1, day);
       
       // Insert week number at the beginning of each week
@@ -857,20 +859,16 @@ export default class CaleX {
     days.forEach((day) => {
       day.onclick = this.onDayClick.bind(this)
       day.onkeydown = this.onKeyDown.bind(this)
-      
-      // Make days focusable for keyboard navigation
       day.setAttribute('tabindex', '0');
       day.setAttribute('role', 'gridcell');
     })
     
-    // Set up grid keyboard navigation
     grid.setAttribute('role', 'grid');
     grid.setAttribute('aria-label', `Calendar for ${this.#monthNames[month]} ${year}`);
     
     this.#grid = grid
     return grid
   }
-  
 
   /**
    * Get CSS classes for a day element with enhanced styling
@@ -1716,3 +1714,4 @@ export default class CaleX {
       this.destroy();
   }
 }
+
