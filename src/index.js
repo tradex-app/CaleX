@@ -601,7 +601,6 @@ export default class CaleX {
       const header = this.renderHeader(month, year)
       const dateGrid = this.renderDateGrid(month, year)
       const footer = this.renderFooter(month, year)
-      const themeToggle = this.renderThemeToggle()
 
       const calendar = document.createElement("div")
       calendar.classList.add("calendar-container")
@@ -619,31 +618,6 @@ export default class CaleX {
           this.#container.innerHTML = ""
           this.#container.appendChild(calendar)
           // this.#container.appendChild(themeToggle)
-  }
-
-  /**
-   * Render theme toggle button
-   */
-  renderThemeToggle() {
-      const button = document.createElement('button');
-      button.className = 'theme-toggle';
-      button.setAttribute('aria-label', 'Toggle theme');
-
-      const getThemeText = () => {
-          switch (this.#options.theme) {
-              case 'light': return '☀️ Light';
-              case 'dark': return '🌙 Dark';
-              default: return '🔄 Auto';
-          }
-      };
-
-      button.textContent = getThemeText();
-      button.onclick = () => {
-          this.toggleTheme();
-          button.textContent = getThemeText();
-      };
-
-      return button;
   }
 
   renderHeader(month, year) {
