@@ -844,6 +844,15 @@ export default class CaleX {
     return grid
   }
 
+  updateDateGrid() {
+    const oldGrid = this.#grid
+    const newGrid = this.renderDateGrid(
+      this.#currentDate.getMonth(),
+      this.#currentDate.getFullYear()
+    );
+    oldGrid.replaceWith(newGrid);
+  }
+
   /**
    * Get CSS classes for a day element with enhanced styling
    * @param {Date} date - The date
@@ -964,21 +973,20 @@ export default class CaleX {
       const time = event.currentTarget.value
       const [hours, minutes] = time.split(":")
       this.#currentDate.setHours(hours, minutes)
-      this.render()
       this.#timeInput.focus()
   }
 
   setDateFromMonthInput(event) {
       const month = event.currentTarget.value
       this.#currentDate.setMonth(month)
-      this.render()
+      this.updateDateGrid()
       this.#monthInput.focus()
   }
 
   setDateFromYearInput(event) {
       const year = event.currentTarget.value
       this.#currentDate.setFullYear(year)
-      this.render()
+      this.updateDateGrid()
       this.#yearInput.focus()
   }
 
