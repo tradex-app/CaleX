@@ -3,6 +3,7 @@ import i18n from "./i18n";
 import { isArrayOfType, isFunction, isNumber, isString } from "./utils/typeChecks";
 import css from "./style";
 import languages from "./i18n/languages";
+import numberInput from "../local_modules/custom-number-input/custom-number-input.es"
 
 const monthNames = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -709,8 +710,8 @@ export default class CaleX {
       const html = `<input type="number" class="calendar-year calendar-input" placeholder="YYYY" min="0" max="3000" value="${year}" aria-label="Year">`
       const input = htmlToElement(html)
       input.onchange = this.setDateFromYearInput.bind(this)
-      this.#yearInput = input
-      return input
+      this.#yearInput = numberInput.build(input).container
+      return this.#yearInput
   }
 
   renderMonth(month) {

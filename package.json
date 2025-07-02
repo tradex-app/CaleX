@@ -2,7 +2,7 @@
   "name": "CaleX",
   "description": "A flexible, lightweight JavaScript calendar component with internationalization support, event highlighting, and customizable features.",
   "private": false,
-  "version": "0.26.0",
+  "version": "0.27.0",
   "type": "module",
   "files": [
     "dist",
