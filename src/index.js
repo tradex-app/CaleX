@@ -718,7 +718,7 @@ export default class CaleX {
     const time = htmlToElement(html)
     const input = time.querySelector(`.${cssClass}`)
     input.onchange = this.setDateFromTimeInput.bind(this)
-    const config = { cssClasses: { container: cssClass } }
+    const config = { cssClasses: { container: `calendar-input ${cssClass}` } }
     timeInput.build(input, config)
     this.#timeInput = time
     return time

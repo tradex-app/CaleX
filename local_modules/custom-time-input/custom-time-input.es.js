@@ -13,17 +13,17 @@ function b(n) {
     Object.prototype.hasOwnProperty.call(n, e) && (typeof n[e] != "object" || n[e] === n ? t[e] = n[e] : t[e] = b(n[e]));
   return t;
 }
-function w(n) {
+function x(n) {
   try {
     return structuredClone(n);
   } catch {
     return b(n);
   }
 }
-function x(n, t, e) {
+function w(n, t, e) {
   [n[t], n[e]] = [n[e], n[t]];
 }
-const I = (n) => n.entries().next().value, M = (n) => n.entries().next().value[0], E = (n) => n.entries().next().value[1], C = (n) => [...n].pop(), v = (n) => [...n.keys()].pop(), L = (n) => [...n.values()].pop();
+const I = (n) => n.entries().next().value, M = (n) => n.entries().next().value[0], C = (n) => n.entries().next().value[1], E = (n) => [...n].pop(), v = (n) => [...n.keys()].pop(), L = (n) => [...n.values()].pop();
 class g extends Map {
   constructor(t) {
     super(t);
@@ -56,10 +56,10 @@ class g extends Map {
     return M(this);
   }
   firstValue() {
-    return E(this);
+    return C(this);
   }
   lastEntry() {
-    return C(this);
+    return E(this);
   }
   lastKey() {
     return v(this);
@@ -100,7 +100,7 @@ class g extends Map {
   swapIndices(t, e) {
     if (!p(t) || !p(e)) return !1;
     const s = [...this];
-    return x(s, t, e), this.populate(s), !0;
+    return w(s, t, e), this.populate(s), !0;
   }
   swapKeys(t, e) {
     const s = [...this], i = s.findIndex(([o]) => o === t), u = s.findIndex(([o]) => o === e);
@@ -196,28 +196,24 @@ function d(n) {
 }
 const N = `
 .custom-time-input-container {
-  display: inline-block;
+  display: inline-flex;
   position: relative;
-}
-
-.time-inputs-wrapper {
-  display: flex;
   align-items: center;
   gap: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid;
   padding: 0;
-  background: white;
+  background: inherit;
   font-family: inherit;
 }
 
-.time-inputs-wrapper:focus-within {
+.custom-time-input-container:focus-within {
   border-color: #007bff;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
 
 .hour-input,
 .minute-input {
-  color: #000;
+  color: inherit;
   border: none;
   outline: none;
   width: 1.5em;
@@ -242,7 +238,7 @@ const N = `
 
 .time-separator {
   font-weight: bold;
-  color: #666;
+  color: inherit;
   user-select: none;
 }
 
@@ -250,6 +246,7 @@ const N = `
   opacity: 0.6;
   cursor: not-allowed;
 }
+
 `, f = {
   cssClasses: {
     container: "custom-time-input-container",
@@ -261,31 +258,31 @@ const N = `
 };
 class r {
   static #s = !1;
-  static #o = /* @__PURE__ */ new Map();
+  static #a = /* @__PURE__ */ new Map();
   static get elements() {
-    return r.#o;
+    return r.#a;
   }
   static build(t, e = f) {
-    if (e = l(e) ? r.#b(e) : f, y(t)) {
+    if (e = l(e) ? r.#g(e) : f, y(t)) {
       const s = document.querySelectorAll(t);
-      return s.length || r.#l(`No elements found for selector: ${t}`), [...s].map((u) => r.#m(u, e));
+      return s.length || r.#o(`No elements found for selector: ${t}`), [...s].map((u) => r.#d(u, e));
     } else
-      return r.#m(t, e);
+      return r.#d(t, e);
   }
-  static #g(t, e) {
-    if (r.#o.has(t))
-      return console.warn("TimeInput already exists for this element"), r.#o.get(t);
+  static #y(t, e) {
+    if (r.#a.has(t))
+      return console.warn("TimeInput already exists for this element"), r.#a.get(t);
     const s = new r(t, e);
-    return r.#o.set(t, s), s;
+    return r.#a.set(t, s), s;
   }
-  static #l(t = 'a valid HTMLElement input type="time" is expected') {
+  static #o(t = 'a valid HTMLElement input type="time" is expected') {
     throw new Error(`TimeInput Error: ${t}`);
   }
   static isTimeInput(t) {
     return t instanceof HTMLInputElement && t.type === "time";
   }
-  static #m(t, e) {
-    return d(t) ? r.isTimeInput(t) ? r.#g(t, e) : (r.#l(), null) : (r.#l(), null);
+  static #d(t, e) {
+    return d(t) ? r.isTimeInput(t) ? r.#y(t, e) : (r.#o(), null) : (r.#o(), null);
   }
   static injectStyles() {
     if (!r.#s) {
@@ -293,28 +290,28 @@ class r {
       t.type = "text/css", t.id = "custom-time-input-styles", t.appendChild(document.createTextNode(N)), document.head.appendChild(t), r.#s = !0;
     }
   }
-  static #b(t) {
-    return w(f), m(f, t);
+  static #g(t) {
+    return x(f), m(f, t);
   }
   #n;
-  #r;
   #u;
+  #i;
   #t;
   #e;
-  #h;
-  #a;
-  #c = !1;
+  #l;
+  #C;
+  #h = !1;
   constructor(t, e = {}) {
-    r.isTimeInput(t) || r.#l(), this.#n = t, this.#r = e, this.#w(), this.#x(), this.#I();
+    r.isTimeInput(t) || r.#o(), this.#n = t, this.#u = e, this.#b(), this.#x(), this.#w();
   }
   destroy() {
-    r.#o.delete(this.#n), this.#n.style.display = "", this.#u.remove();
+    r.#a.delete(this.#n), this.#n.style.display = "", this.#i.remove();
   }
   get input() {
     return this.#n;
   }
   get container() {
-    return this.#u;
+    return this.#i;
   }
   get hourInput() {
     return this.#t;
@@ -323,21 +320,28 @@ class r {
     return this.#e;
   }
   get config() {
-    return { ...this.#r };
+    return { ...this.#u };
   }
-  #w() {
-    this.#n.style.display = "none", this.#u = document.createElement("div"), this.#u.classList.add(this.#r.cssClasses.container), this.#n.parentNode?.insertBefore(this.#u, this.#n.nextSibling);
+  #b() {
+    this.#n.style.display = "none";
+    const t = this.#u.cssClasses.container.split(" ");
+    this.#i = document.createElement("div"), this.#i.classList.add(...t), this.#n.parentNode?.insertBefore(this.#i, this.#n.nextSibling);
   }
   #x() {
-    this.#a = document.createElement("div"), this.#a.classList.add(this.#r.cssClasses.wrapper), this.#t = document.createElement("input"), this.#t.type = "number", this.#t.min = "0", this.#t.max = "23", this.#t.step = "1", this.#t.classList.add(this.#r.cssClasses.hourInput), this.#t.setAttribute("aria-label", "Hours"), this.#t.placeholder = "00", this.#h = document.createElement("span"), this.#h.classList.add(this.#r.cssClasses.separator), this.#h.textContent = ":", this.#e = document.createElement("input"), this.#e.type = "number", this.#e.min = "0", this.#e.max = "59", this.#e.step = "1", this.#e.classList.add(this.#r.cssClasses.minuteInput), this.#e.setAttribute("aria-label", "Minutes"), this.#e.placeholder = "00", this.#a.appendChild(this.#t), this.#a.appendChild(this.#h), this.#a.appendChild(this.#e), this.#u.appendChild(this.#a);
+    const t = this.#u.cssClasses.hourInput.split(" ");
+    this.#t = document.createElement("input"), this.#t.type = "number", this.#t.min = "0", this.#t.max = "23", this.#t.step = "1", this.#t.classList.add(...t), this.#t.setAttribute("aria-label", "Hours"), this.#t.placeholder = "00";
+    const e = this.#u.cssClasses.separator.split(" ");
+    this.#l = document.createElement("span"), this.#l.classList.add(...e), this.#l.textContent = ":";
+    const s = this.#u.cssClasses.minuteInput.split(" ");
+    this.#e = document.createElement("input"), this.#e.type = "number", this.#e.min = "0", this.#e.max = "59", this.#e.step = "1", this.#e.classList.add(...s), this.#e.setAttribute("aria-label", "Minutes"), this.#e.placeholder = "00", this.#i.appendChild(this.#t), this.#i.appendChild(this.#l), this.#i.appendChild(this.#e);
   }
-  #I() {
-    r.injectStyles(), this.#p(), this.#t.addEventListener("input", () => this.#i()), this.#t.addEventListener("change", () => this.#i()), this.#e.addEventListener("input", () => this.#i()), this.#e.addEventListener("change", () => this.#i()), this.#n.addEventListener("input", () => this.#y()), this.#n.addEventListener("change", () => this.#y()), this.#t.addEventListener("blur", () => this.#M()), this.#e.addEventListener("blur", () => this.#E());
+  #w() {
+    r.injectStyles(), this.#c(), this.#t.addEventListener("input", () => this.#r()), this.#t.addEventListener("change", () => this.#r()), this.#e.addEventListener("input", () => this.#r()), this.#e.addEventListener("change", () => this.#r()), this.#n.addEventListener("input", () => this.#m()), this.#n.addEventListener("change", () => this.#m()), this.#t.addEventListener("blur", () => this.#I()), this.#e.addEventListener("blur", () => this.#M());
   }
-  #y() {
-    this.#c || this.#p();
+  #m() {
+    this.#h || this.#c();
   }
-  #p() {
+  #c() {
     const t = this.#n.value;
     if (t) {
       const [e, s] = t.split(":");
@@ -345,26 +349,26 @@ class r {
     } else
       this.#t.value = "", this.#e.value = "";
   }
-  #i() {
-    this.#c = !0;
-    const t = this.#f(), e = this.#d(), s = `${t.toString().padStart(2, "0")}:${e.toString().padStart(2, "0")}`;
-    this.#n.value = s, this.#n.dispatchEvent(new Event("input", { bubbles: !0 })), this.#n.dispatchEvent(new Event("change", { bubbles: !0 })), this.#c = !1;
+  #r() {
+    this.#h = !0;
+    const t = this.#p(), e = this.#f(), s = `${t.toString().padStart(2, "0")}:${e.toString().padStart(2, "0")}`;
+    this.#n.value = s, this.#n.dispatchEvent(new Event("input", { bubbles: !0 })), this.#n.dispatchEvent(new Event("change", { bubbles: !0 })), this.#h = !1;
   }
-  #f() {
+  #p() {
     const t = parseInt(this.#t.value, 10);
     return isNaN(t) ? 0 : Math.max(0, Math.min(23, t));
   }
-  #d() {
+  #f() {
     const t = parseInt(this.#e.value, 10);
     return isNaN(t) ? 0 : Math.max(0, Math.min(59, t));
   }
+  #I() {
+    const t = this.#p();
+    this.#t.value = t, this.#r();
+  }
   #M() {
     const t = this.#f();
-    this.#t.value = t, this.#i();
-  }
-  #E() {
-    const t = this.#d();
-    this.#e.value = t, this.#i();
+    this.#e.value = t, this.#r();
   }
   getValue() {
     return this.#n.value;
@@ -374,27 +378,27 @@ class r {
       console.warn("setValue expects a valid time string (HH:MM)");
       return;
     }
-    this.#n.value = t, this.#p();
+    this.#n.value = t, this.#c();
   }
   getHours() {
-    return this.#f();
+    return this.#p();
   }
   getMinutes() {
-    return this.#d();
+    return this.#f();
   }
   setHours(t) {
     if (typeof t != "number" || t < 0 || t > 23) {
       console.warn("setHours expects a number between 0 and 23");
       return;
     }
-    this.#t.value = t, this.#i();
+    this.#t.value = t, this.#r();
   }
   setMinutes(t) {
     if (typeof t != "number" || t < 0 || t > 59) {
       console.warn("setMinutes expects a number between 0 and 59");
       return;
     }
-    this.#e.value = t, this.#i();
+    this.#e.value = t, this.#r();
   }
 }
 export {

@@ -23,7 +23,7 @@ function x(s) {
 function w(s, t, e) {
   [s[t], s[e]] = [s[e], s[t]];
 }
-const v = (s) => s.entries().next().value, E = (s) => s.entries().next().value[0], k = (s) => s.entries().next().value[1], C = (s) => [...s].pop(), L = (s) => [...s.keys()].pop(), V = (s) => [...s.values()].pop();
+const v = (s) => s.entries().next().value, C = (s) => s.entries().next().value[0], L = (s) => s.entries().next().value[1], E = (s) => [...s].pop(), k = (s) => [...s.keys()].pop(), V = (s) => [...s.values()].pop();
 class g extends Map {
   constructor(t) {
     super(t);
@@ -53,16 +53,16 @@ class g extends Map {
     return v(this);
   }
   firstKey() {
-    return E(this);
-  }
-  firstValue() {
-    return k(this);
-  }
-  lastEntry() {
     return C(this);
   }
-  lastKey() {
+  firstValue() {
     return L(this);
+  }
+  lastEntry() {
+    return E(this);
+  }
+  lastKey() {
+    return k(this);
   }
   lastValue() {
     return V(this);
@@ -468,14 +468,20 @@ class a {
     return { ...this.#r };
   }
   #b() {
-    this.#t.classList.add("custom-number-input"), this.#i = document.createElement("div"), this.#i.classList.add(
-      this.#r.cssClasses.container,
+    this.#t.classList.add("custom-number-input");
+    const t = this.#r.cssClasses.container.split(" ");
+    this.#i = document.createElement("div"), this.#i.classList.add(
+      ...t,
       `number-input-layout-${this.#r.layout}`
     ), this.#t.parentNode?.insertBefore(this.#i, this.#t), this.#i.appendChild(this.#t);
   }
   #g() {
-    const t = document.createElement("div");
-    t.className = this.#r.cssClasses.spinner, this.#n = document.createElement("button"), this.#n.type = "button", this.#n.className = this.#r.cssClasses.incButton, this.#n.innerHTML = "&#9650;", this.#n.tabIndex = -1, this.#n.setAttribute("aria-label", "Increment"), this.#n.setAttribute("aria-controls", this.#t.id || "number-input"), this.#s = document.createElement("button"), this.#s.type = "button", this.#s.className = this.#r.cssClasses.decButton, this.#s.innerHTML = "&#9660;", this.#s.tabIndex = -1, this.#s.setAttribute("aria-label", "Decrement"), this.#s.setAttribute("aria-controls", this.#t.id || "number-input"), t.appendChild(this.#n), t.appendChild(this.#s), this.#i.appendChild(t);
+    const t = this.#r.cssClasses.spinner.split(" "), e = document.createElement("div");
+    e.classList.add(...t);
+    const n = this.#r.cssClasses.incButton.split(" ");
+    this.#n = document.createElement("button"), this.#n.type = "button", this.#n.classList.add(...n), this.#n.innerHTML = "&#9650;", this.#n.tabIndex = -1, this.#n.setAttribute("aria-label", "Increment"), this.#n.setAttribute("aria-controls", this.#t.id || "number-input");
+    const i = this.#r.cssClasses.decButton.split(" ");
+    this.#s = document.createElement("button"), this.#s.type = "button", this.#s.classList.add(...i), this.#s.innerHTML = "&#9660;", this.#s.tabIndex = -1, this.#s.setAttribute("aria-label", "Decrement"), this.#s.setAttribute("aria-controls", this.#t.id || "number-input"), e.appendChild(this.#n), e.appendChild(this.#s), this.#i.appendChild(e);
   }
   #y() {
     a.injectStyles(), this.#n.addEventListener("click", (t) => this.increment.call(this, t)), this.#s.addEventListener("click", (t) => this.decrement.call(this, t)), this.#n.addEventListener("mousedown", (t) => this.#f.call(this, t, "up")), this.#s.addEventListener("mousedown", (t) => this.#f.call(this, t, "down")), document.addEventListener("mouseup", () => this.#a.call(this)), this.#n.addEventListener("mouseleave", () => this.#a.call(this)), this.#s.addEventListener("mouseleave", () => this.#a.call(this)), this.#t.addEventListener("input", () => this.#o.call(this)), this.#t.addEventListener("change", () => this.#o.call(this)), this.#n.addEventListener("mousedown", (t) => t.preventDefault()), this.#s.addEventListener("mousedown", (t) => t.preventDefault()), this.#o();
