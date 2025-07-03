@@ -1,8 +1,30 @@
-function g(s, t, e) {
+function m(s, t) {
+  return !l(s) || !l(t) ? t : (Object.keys(t).forEach((e) => {
+    const n = s[e], i = t[e];
+    c(n) && c(i) ? s[e] = m(n.concat([]), i) : l(n) && l(i) ? s[e] = m(Object.assign({}, n), i) : s[e] = i;
+  }), s);
+}
+function y(s) {
+  if (s === null || typeof s != "object")
+    return s;
+  let t;
+  s instanceof Date ? t = new s.constructor() : t = c(s) ? [] : {};
+  for (let e in s)
+    Object.prototype.hasOwnProperty.call(s, e) && (typeof s[e] != "object" || s[e] === s ? t[e] = s[e] : t[e] = y(s[e]));
+  return t;
+}
+function x(s) {
+  try {
+    return structuredClone(s);
+  } catch {
+    return y(s);
+  }
+}
+function w(s, t, e) {
   [s[t], s[e]] = [s[e], s[t]];
 }
-const y = (s) => s.entries().next().value, x = (s) => s.entries().next().value[0], w = (s) => s.entries().next().value[1], v = (s) => [...s].pop(), k = (s) => [...s.keys()].pop(), E = (s) => [...s.values()].pop();
-class b extends Map {
+const v = (s) => s.entries().next().value, E = (s) => s.entries().next().value[0], k = (s) => s.entries().next().value[1], C = (s) => [...s].pop(), L = (s) => [...s.keys()].pop(), V = (s) => [...s.values()].pop();
+class g extends Map {
   constructor(t) {
     super(t);
   }
@@ -28,22 +50,22 @@ class b extends Map {
     return this.removeIndex(t);
   }
   firstEntry() {
-    return y(this);
-  }
-  firstKey() {
-    return x(this);
-  }
-  firstValue() {
-    return w(this);
-  }
-  lastEntry() {
     return v(this);
   }
-  lastKey() {
+  firstKey() {
+    return E(this);
+  }
+  firstValue() {
     return k(this);
   }
+  lastEntry() {
+    return C(this);
+  }
+  lastKey() {
+    return L(this);
+  }
   lastValue() {
-    return E(this);
+    return V(this);
   }
   prevCurrNext(t) {
     let e = curr = next = null;
@@ -60,60 +82,60 @@ class b extends Map {
           this.set(...n);
   }
   setMultiple(t) {
-    return f(t) ? (t.forEach(([e, n]) => this.set(e, n)), !0) : !1;
+    return c(t) ? (t.forEach(([e, n]) => this.set(e, n)), !0) : !1;
   }
   populate(t) {
-    return f(t) ? (this.clear(), t.forEach(([e, n]) => this.set(e, n)), !0) : !1;
+    return c(t) ? (this.clear(), t.forEach(([e, n]) => this.set(e, n)), !0) : !1;
   }
   insertIndex(t, e, n) {
-    if (!p(t)) return !1;
+    if (!d(t)) return !1;
     const i = [...this];
     return i.splice(t, 0, [e, n]), this.populate(i), !0;
   }
   removeIndex(t) {
-    if (!p(t)) return !1;
+    if (!d(t)) return !1;
     const e = [...this];
     return e.splice(t, 1), this.populate(e), !0;
   }
   swapIndices(t, e) {
-    if (!p(t) || !p(e)) return !1;
+    if (!d(t) || !d(e)) return !1;
     const n = [...this];
-    return g(n, t, e), this.populate(n), !0;
+    return w(n, t, e), this.populate(n), !0;
   }
   swapKeys(t, e) {
     const n = [...this], i = n.findIndex(([o]) => o === t), r = n.findIndex(([o]) => o === e);
-    return [n[i], n[r]] = [n[r], n[i]], this.clear(), n.forEach(([o, c]) => this.set(o, c)), !0;
+    return [n[i], n[r]] = [n[r], n[i]], this.clear(), n.forEach(([o, p]) => this.set(o, p)), !0;
   }
 }
 class u {
-  static #t = new b();
+  static #e = new g();
   static get entries() {
-    return u.#t;
+    return u.#e;
   }
   static isValid(t, e, n, i) {
-    return !l(t) || !d(e) || !m(n) || !L(i);
+    return !l(t) || !f(e) || !b(n) || !M(i);
   }
   static add(t, e, n, i) {
     if (!this.isValid(t, e, n, i)) return !1;
-    e.addEventListener(n, i), u.#t.has(t) || u.#t.set(t, new b());
-    const r = u.#t.get(t);
+    e.addEventListener(n, i), u.#e.has(t) || u.#e.set(t, new g());
+    const r = u.#e.get(t);
     r.has(e) || r.set(e, {});
     const o = r.get(e);
-    return f(o[n]) || (o[n] = []), o[n].push(i), !0;
+    return c(o[n]) || (o[n] = []), o[n].push(i), !0;
   }
   static remove(t, e, n, i) {
-    if (!u.isValid(t, e, n, i) || !u.#t.has(t)) return !1;
-    const r = u.#t.get(t);
+    if (!u.isValid(t, e, n, i) || !u.#e.has(t)) return !1;
+    const r = u.#e.get(t);
     if (!r.has(e)) return !1;
     const o = r.get(e);
     if (!(n in o)) return !1;
-    const c = o[n].indexOf(i);
-    return c < 0 ? !1 : (o[n].splice(c, 1), o[n].length == 0 && delete o[n], Object.keys(o).length == 0 && r.delete(e), r.size == 0 && u.#t.delete(t), !0);
+    const p = o[n].indexOf(i);
+    return p < 0 ? !1 : (o[n].splice(p, 1), o[n].length == 0 && delete o[n], Object.keys(o).length == 0 && r.delete(e), r.size == 0 && u.#e.delete(t), !0);
   }
   static expungeEvent(t, e, n) {
-    if (!l(t) || !d(e) || !m(n))
+    if (!l(t) || !f(e) || !b(n))
       return !1;
-    const i = u.#t.get(t);
+    const i = u.#e.get(t);
     if (!i.has(e)) return !1;
     const r = i.get(e);
     if (n in r) {
@@ -124,9 +146,9 @@ class u {
     return !0;
   }
   static expungeElement(t, e) {
-    if (!l(t) || !d(e))
+    if (!l(t) || !f(e))
       return !1;
-    const n = u.#t.get(t);
+    const n = u.#e.get(t);
     if (n.has(e)) {
       let i = n.get(e);
       for (let r in i)
@@ -138,41 +160,41 @@ class u {
   static expungeContext(t) {
     if (!l(t))
       return !1;
-    if (u.#t.has(t)) {
-      const e = u.#t.get(t);
+    if (u.#e.has(t)) {
+      const e = u.#e.get(t);
       for (let n of e)
         u.expungeElement(t, n);
-      u.#t.delete(t);
+      u.#e.delete(t);
     }
     return !0;
   }
   static expungeAll() {
   }
   static destroy() {
-    for (let t of u.#t)
+    for (let t of u.#e)
       u.expungeContext(t);
-    return u.#t = void 0, !0;
+    return u.#e = void 0, !0;
   }
 }
-function f(s) {
+function c(s) {
   return Array.isArray(s);
 }
-function L(s) {
+function M(s) {
   return s && typeof s == "function";
 }
 function l(s) {
   return typeof s == "object" && !Array.isArray(s) && s !== null;
 }
-function p(s) {
+function d(s) {
   return typeof s == "number" && !isNaN(s);
 }
-function m(s) {
+function b(s) {
   return typeof s == "string";
 }
-function d(s) {
+function f(s) {
   return typeof HTMLElement == "object" ? s instanceof HTMLElement : s && typeof s == "object" && s !== null && s.nodeType === 1 && typeof s.nodeName == "string";
 }
-const C = `
+const I = `
 input[type="number"].custom-number-input {
   -webkit-appearance: textfield;
      -moz-appearance: textfield;
@@ -355,7 +377,7 @@ input[type="number"].custom-number-input:focus {
   }
 }
 
-`, M = ["default", "left-right", "left-right-round", "right", "right-round", "plus-minus", "vertical"], h = {
+`, O = ["default", "left-right", "left-right-round", "right", "right-round", "plus-minus", "vertical"], h = {
   layout: "default",
   showOnHover: !0,
   showOnFocus: !0,
@@ -369,17 +391,15 @@ input[type="number"].custom-number-input:focus {
   }
 };
 class a {
-  static #t = !1;
+  static #e = !1;
   static #u = /* @__PURE__ */ new Map();
   static get elements() {
     return a.#u;
   }
   static build(t, e = h) {
-    if (e = l(e) ? a.#m(e) : h, m(t)) {
+    if (e = l(e) ? a.#m(e) : h, b(t)) {
       const n = document.querySelectorAll(t);
-      return n.length || a.#d(`No elements found for selector: ${t}`), [...n].map((r) => {
-        a.#h(r, e);
-      });
+      return n.length || a.#d(`No elements found for selector: ${t}`), [...n].map((r) => a.#h(r, e));
     } else
       return a.#h(t, e);
   }
@@ -396,7 +416,7 @@ class a {
     return t instanceof HTMLInputElement && t.type === "number";
   }
   static #h(t, e) {
-    if (d(t)) {
+    if (f(t)) {
       if (a.isNumberInput(t))
         return a.#p(t, e);
       {
@@ -409,16 +429,17 @@ class a {
       return a.#d(), null;
   }
   static injectStyles() {
-    if (!a.#t) {
+    if (!a.#e) {
       const t = document.createElement("style");
-      t.type = "text/css", t.id = "custom-number-input-styles", t.appendChild(document.createTextNode(C)), document.head.appendChild(t), a.#t = !0;
+      t.type = "text/css", t.id = "custom-number-input-styles", t.appendChild(document.createTextNode(I)), document.head.appendChild(t), a.#e = !0;
     }
   }
   static #m(t) {
-    const e = { ...h, ...t };
-    return M.includes(e.layout) || (e.layout = "default"), e.showOnHover, e.showOnFocus, e;
+    x(h);
+    const e = m(h, t);
+    return O.includes(e.layout) || (e.layout = "default"), e.showOnHover, e.showOnFocus, e;
   }
-  #e;
+  #t;
   #r;
   #i;
   #n;
@@ -426,52 +447,64 @@ class a {
   #l = null;
   #c = null;
   constructor(t, e = {}) {
-    this.#e = t, this.#r = e, this.#b(), this.#g(), this.#y();
+    this.#t = t, this.#r = e, this.#b(), this.#g(), this.#y();
   }
   destroy() {
-    this.#a(), a.#u.delete(this.#e), this.#i.remove();
+    this.#a(), a.#u.delete(this.#t), this.#i.remove();
   }
   get input() {
-    return this.#e;
+    return this.#t;
   }
   get container() {
     return this.#i;
+  }
+  get incButton() {
+    return this.#n;
+  }
+  get decButton() {
+    return this.#s;
   }
   get config() {
     return { ...this.#r };
   }
   #b() {
-    this.#e.classList.add("custom-number-input"), this.#i = document.createElement("div"), this.#i.classList.add(
+    this.#t.classList.add("custom-number-input"), this.#i = document.createElement("div"), this.#i.classList.add(
       this.#r.cssClasses.container,
       `number-input-layout-${this.#r.layout}`
-    ), this.#e.parentNode?.insertBefore(this.#i, this.#e), this.#i.appendChild(this.#e);
+    ), this.#t.parentNode?.insertBefore(this.#i, this.#t), this.#i.appendChild(this.#t);
   }
   #g() {
     const t = document.createElement("div");
-    t.className = this.#r.cssClasses.spinner, this.#n = document.createElement("button"), this.#n.type = "button", this.#n.className = this.#r.cssClasses.incButton, this.#n.innerHTML = "&#9650;", this.#n.tabIndex = -1, this.#n.setAttribute("aria-label", "Increment"), this.#s = document.createElement("button"), this.#s.type = "button", this.#s.className = this.#r.cssClasses.decButton, this.#s.innerHTML = "&#9660;", this.#s.tabIndex = -1, this.#s.setAttribute("aria-label", "Decrement"), t.appendChild(this.#n), t.appendChild(this.#s), this.#i.appendChild(t);
+    t.className = this.#r.cssClasses.spinner, this.#n = document.createElement("button"), this.#n.type = "button", this.#n.className = this.#r.cssClasses.incButton, this.#n.innerHTML = "&#9650;", this.#n.tabIndex = -1, this.#n.setAttribute("aria-label", "Increment"), this.#n.setAttribute("aria-controls", this.#t.id || "number-input"), this.#s = document.createElement("button"), this.#s.type = "button", this.#s.className = this.#r.cssClasses.decButton, this.#s.innerHTML = "&#9660;", this.#s.tabIndex = -1, this.#s.setAttribute("aria-label", "Decrement"), this.#s.setAttribute("aria-controls", this.#t.id || "number-input"), t.appendChild(this.#n), t.appendChild(this.#s), this.#i.appendChild(t);
   }
   #y() {
-    a.injectStyles(), this.#n.addEventListener("click", (t) => this.increment.call(this, t)), this.#s.addEventListener("click", (t) => this.decrement.call(this, t)), this.#n.addEventListener("mousedown", (t) => this.#f.call(this, t, "up")), this.#s.addEventListener("mousedown", (t) => this.#f.call(this, t, "down")), document.addEventListener("mouseup", () => this.#a.call(this)), this.#n.addEventListener("mouseleave", () => this.#a.call(this)), this.#s.addEventListener("mouseleave", () => this.#a.call(this)), this.#e.addEventListener("input", () => this.#o.call(this)), this.#e.addEventListener("change", () => this.#o.call(this)), this.#n.addEventListener("mousedown", (t) => t.preventDefault()), this.#s.addEventListener("mousedown", (t) => t.preventDefault()), this.#o();
+    a.injectStyles(), this.#n.addEventListener("click", (t) => this.increment.call(this, t)), this.#s.addEventListener("click", (t) => this.decrement.call(this, t)), this.#n.addEventListener("mousedown", (t) => this.#f.call(this, t, "up")), this.#s.addEventListener("mousedown", (t) => this.#f.call(this, t, "down")), document.addEventListener("mouseup", () => this.#a.call(this)), this.#n.addEventListener("mouseleave", () => this.#a.call(this)), this.#s.addEventListener("mouseleave", () => this.#a.call(this)), this.#t.addEventListener("input", () => this.#o.call(this)), this.#t.addEventListener("change", () => this.#o.call(this)), this.#n.addEventListener("mousedown", (t) => t.preventDefault()), this.#s.addEventListener("mousedown", (t) => t.preventDefault()), this.#o();
   }
   getValue() {
-    const t = parseFloat(this.#e.value);
-    return isNaN(t) ? 0 : t;
+    const t = this.#t.value.trim();
+    if (t === "") return 0;
+    const e = parseFloat(t);
+    return isNaN(e) ? 0 : e;
   }
   getStep() {
-    const t = parseFloat(this.#e.step);
+    const t = parseFloat(this.#t.step);
     return isNaN(t) ? 1 : t;
   }
   getMin() {
-    const t = parseFloat(this.#e.min);
+    const t = parseFloat(this.#t.min);
     return isNaN(t) ? null : t;
   }
   getMax() {
-    const t = parseFloat(this.#e.max);
+    const t = parseFloat(this.#t.max);
     return isNaN(t) ? null : t;
   }
   setValue(t) {
+    if (typeof t != "number" || isNaN(t)) {
+      console.warn("setValue expects a valid number");
+      return;
+    }
     const e = this.getStep(), n = this.#x(e), i = parseFloat(t.toFixed(n));
-    this.#e.value = i, this.#e.dispatchEvent(new Event("input", { bubbles: !0 })), this.#e.dispatchEvent(new Event("change", { bubbles: !0 }));
+    this.#t.value = i, this.#t.dispatchEvent(new Event("input", { bubbles: !0 })), this.#t.dispatchEvent(new Event("change", { bubbles: !0 }));
   }
   #x(t) {
     const e = t.toString();

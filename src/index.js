@@ -4,6 +4,7 @@ import { isArrayOfType, isFunction, isNumber, isString } from "./utils/typeCheck
 import css from "./style";
 import languages from "./i18n/languages";
 import numberInput from "../local_modules/custom-number-input/custom-number-input.es"
+import timeInput from "../local_modules/custom-time-input/custom-time-input.es"
 
 const monthNames = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -708,16 +709,18 @@ export default class CaleX {
     
     const hours = this.#currentDate.getHours().toString().padStart(2, '0');
     const minutes = this.#currentDate.getMinutes().toString().padStart(2, '0');
+    const cssClass = `calendar-timeinput`
     const html = `
     <div class="calendar-time">
-    <input type="time" class="calendar-input calendar-timeinput" value="${hours}:${minutes}" aria-label="Time">
+    <input type="time" step="60" class="calendar-input ${cssClass}" value="${hours}:${minutes}" aria-label="Time">
     </div>
     `
     const time = htmlToElement(html)
-    const input = time.querySelector(`.calendar-timeinput`)
+    const input = time.querySelector(`.${cssClass}`)
     input.onchange = this.setDateFromTimeInput.bind(this)
-    this.#timeInput = input
-
+    const config = { cssClasses: { container: cssClass } }
+    timeInput.build(input, config)
+    this.#timeInput = time
     return time
   }
 
