@@ -81,6 +81,7 @@ export default class CaleX {
   destroy() {
     this.#container.innerHTML = '';
     this.dispose()
+    this.#yearInput.destroy()
     this.#eventListeners.clear()
     this.#eventDates.clear();
     this.#priorityEventDates.clear();
@@ -88,7 +89,7 @@ export default class CaleX {
     this.#currentDate = null;
     this.#timeInput.onchange = null
     this.#monthInput.onchange = null
-    
+
   }
 
   get container() { return this.#container }
