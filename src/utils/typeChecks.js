@@ -1,196 +1,118 @@
-// import { isValidTimestamp } from "./time"
-import { isArrayEqual } from "./utilities"
+// Type checking utilities
 
-/**
- * @param {*} v
- * @returns {boolean}
- */
- export function isArray (v) {
-  return Array.isArray(v)
+export function isBoolean(b) {
+  return typeof b === "boolean";
 }
 
-/**
- * @param {*} v - value to test
- * @param {String} t - type
- * @returns {Boolean}
- */
-export function isArrayOfType (v, t) {
-  if (!isArray(v)) return false
-  return v.every((n) => checkType(t, n))
+export function isNumber(n) {
+  return typeof n === "number" && isFinite(n);
 }
 
-/**
- * @param {*} v
- * @returns {boolean}
- */
-export function isFunction (v) {
-  return v && typeof v === 'function'
+export function isInteger(n) {
+  return isNumber(n) && n % 1 === 0;
 }
 
-/**
- * @param {*} v
- * @returns {boolean}
- */
-export function isAsyncFunction (v) {
-  return isFunction(v) && Object.prototype.toString.call(v) === '[object AsyncFunction]';
+export function isString(s) {
+  return typeof s === "string";
 }
 
-/**
- * @param {*} v
- * @returns {boolean}
- */
-export function isObject (v) {
-  return (
-  typeof v === 'object' &&
-  !Array.isArray(v) &&
-  v !== null)
+export function isStringOrNumber(o) {
+  return isString(o) || isNumber(o);
 }
 
-export function isObjectOfTypes (target, types, equal) {
-  if (!isObject(target) ||
-      !isObject(types))
-      return false
-  const k1 = Object.keys(target)
-  const k2 = Object.keys(types)
-  if (!!equal && !isArrayEqual(k1, k2))
-      return false
-  for (let k of k2) {
-    if (!checkType(types[k], target[k])) return false
-  }
-  return true
+export function isFunction(f) {
+  return typeof f === "function";
 }
 
-/**
- * @param {*} v
- * @returns {boolean}
- */
-export function isNumber (v) {
-  return typeof v === 'number' && !isNaN(v)
+export function isObject(o) {
+  return o !== null && typeof o === "object" && !(o instanceof Array);
 }
 
-/**
- * @param {*} v
- * @returns {boolean}
- */
-export function isInteger (v) {
-  return (typeof v === 'number') && (Math.abs(v % 1) === 0);
+export function isArray(a) {
+  return Array.isArray(a);
 }
 
-/**
- * @param {*} v
- * @returns {boolean}
- */
-export function isValid (v) {
-  return v !== null && v !== undefined
-}
-
-/**
- * @param {*} v
- * @returns {boolean}
- */
-export function isBoolean (v) {
-  return typeof v === 'boolean'
-}
-
-/**
- * @param {*} v
- * @returns {boolean}
- */
-export function isString (v) {
-  return typeof v === 'string'
-}
-
-/**
- * @export
- * @param {*} v
- * @return {boolean}
- */
-export function isMap(v) {
-  return v instanceof Map
-}
-
-/**
- * @export
- * @param {*} v
- * @return {boolean}
- */
-export function isPromise (v) {
-  return !!v && (isObject(v) || isFunction(v)) && isFunction(v.then) && v[Symbol.toStringTag] === 'Promise';
-}
-
-/**
- * @export
- * @param {*} v
- * @return {boolean}
- */
-export function isError (v) {
-  return v instanceof Error ;
-}
-
-/**
- * @export
- * @param {*} v
- * @return {boolean}
- */
-export function isClass(v){
-  // Class constructor is also a function
-  if (!(v && v.constructor === Function) || v.prototype === undefined)
-    return false;
-
-  // We have a function and not a class if arguments is a property name
-  if (Object.getOwnPropertyNames(v).includes('arguments'))
-    return false
-  
-  // This is a class that extends other class
-  if(Function.prototype !== Object.getPrototypeOf(v))
-    return true;
-  
-  // Usually a function will only have 'constructor' in the prototype
-  return Object.getOwnPropertyNames(v.prototype).length > 1;
-}
-
-
-const types = ["array", "error", "class", "function", "asyncfunction", "map", "promise", 
-  "object", "integer", "number", "boolean", "string"]
-
-/**
- * @param {string} type
- * @param {*} value
- * @returns {boolean}
- */
-export function checkType(type, value) {
-  // const t = [...types, 'timestamp', 'valid']
-  const t = [...types, 'valid']
-  if (value === undefined ||
-      value === null ||
-      !t.includes(type))
-      return false
-  switch(type) {
-    case 'array': return isArray(value);
-    case 'asyncfunction': return isAsyncFunction(value);
-    case 'function': return isFunction(value);
-    case 'object': return isObject(value);
-    case 'integer': return isInteger(value);
-    case 'number': return isNumber(value);
-    case 'valid': return isValid(value);
-    case 'boolean': return isBoolean(value);
-    case 'string': return isString(value);
-    case 'map': return isMap(value);
-    case 'promise': return isPromise(value);
-    case 'error': return isError(value);
-    case 'class': return isClass(value);
-    // case 'timestamp': return isValidTimestamp(value);
-    default: throw new Error(`No known test for type: ${type}`)
-  }
-};
-
-export function typeOf(value) {
-  for (let type of types) {
-    try {
-      if (checkType(type, value)) return type
+export function isArrayOfType(arr, type) {
+  if (!isArray(arr)) return false;
+  return arr.every(item => {
+    switch(type) {
+      case "string": return isString(item);
+      case "number": return isNumber(item);
+      case "boolean": return isBoolean(item);
+      case "function": return isFunction(item);
+      case "object": return isObject(item);
+      default: return false;
     }
-    catch (e) {
-      return typeof value
-    }
-  }
+  });
+}
+
+export function isPromise(p) {
+  return p && typeof p.then === "function";
+}
+
+export function isDate(d) {
+  return d instanceof Date && !isNaN(d.getTime());
+}
+
+export function isValidDateString(s) {
+  if (!isString(s)) return false;
+  const date = new Date(s);
+  return isDate(date);
+}
+
+export function isTimestamp(t) {
+  return isNumber(t) && t > 0 && t <= Date.now() * 2; // Allow future dates up to 2x current time
+}
+
+export function isValidId(id) {
+  return isString(id) || isNumber(id);
+}
+
+export function isEmpty(value) {
+  if (value === null || value === undefined) return true;
+  if (isString(value) || isArray(value)) return value.length === 0;
+  if (isObject(value)) return Object.keys(value).length === 0;
+  return false;
+}
+
+export function isNonEmptyString(s) {
+  return isString(s) && s.trim().length > 0;
+}
+
+export function isNonEmptyArray(a) {
+  return isArray(a) && a.length > 0;
+}
+
+export function hasProperties(obj, properties) {
+  if (!isObject(obj)) return false;
+  if (!isArray(properties)) return false;
+  return properties.every(prop => obj.hasOwnProperty(prop));
+}
+
+// Validation helpers
+export function validateDateRange(start, end) {
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+  return isDate(startDate) && isDate(endDate) && startDate <= endDate;
+}
+
+export function validateEventData(eventData) {
+  return isObject(eventData) && 
+         hasProperties(eventData, ['id', 'date']) &&
+         isValidId(eventData.id) &&
+         (isDate(eventData.date) || isValidDateString(eventData.date) || isTimestamp(eventData.date));
+}
+
+export function validateOptions(options, requiredProps = [], optionalProps = []) {
+  if (!isObject(options)) return false;
+  
+  // Check required properties
+  const hasRequired = requiredProps.every(prop => options.hasOwnProperty(prop));
+  if (!hasRequired) return false;
+  
+  // Check that all properties are either required or optional
+  const allProps = [...requiredProps, ...optionalProps];
+  const hasUnknownProps = Object.keys(options).some(prop => !allProps.includes(prop));
+  
+  return !hasUnknownProps;
 }

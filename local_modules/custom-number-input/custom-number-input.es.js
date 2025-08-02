@@ -1,30 +1,30 @@
-function m(s, t) {
-  return !l(s) || !l(t) ? t : (Object.keys(t).forEach((e) => {
-    const n = s[e], i = t[e];
-    c(n) && c(i) ? s[e] = m(n.concat([]), i) : l(n) && l(i) ? s[e] = m(Object.assign({}, n), i) : s[e] = i;
-  }), s);
+function m(i, t) {
+  return !l(i) || !l(t) ? t : (Object.keys(t).forEach((e) => {
+    const n = i[e], s = t[e];
+    p(n) && p(s) ? i[e] = m(n.concat([]), s) : l(n) && l(s) ? i[e] = m(Object.assign({}, n), s) : i[e] = s;
+  }), i);
 }
-function y(s) {
-  if (s === null || typeof s != "object")
-    return s;
+function x(i) {
+  if (i === null || typeof i != "object")
+    return i;
   let t;
-  s instanceof Date ? t = new s.constructor() : t = c(s) ? [] : {};
-  for (let e in s)
-    Object.prototype.hasOwnProperty.call(s, e) && (typeof s[e] != "object" || s[e] === s ? t[e] = s[e] : t[e] = y(s[e]));
+  i instanceof Date ? t = new i.constructor() : t = p(i) ? [] : {};
+  for (let e in i)
+    Object.prototype.hasOwnProperty.call(i, e) && (typeof i[e] != "object" || i[e] === i ? t[e] = i[e] : t[e] = x(i[e]));
   return t;
 }
-function x(s) {
+function g(i) {
   try {
-    return structuredClone(s);
+    return structuredClone(i);
   } catch {
-    return y(s);
+    return x(i);
   }
 }
-function w(s, t, e) {
-  [s[t], s[e]] = [s[e], s[t]];
+function w(i, t, e) {
+  [i[t], i[e]] = [i[e], i[t]];
 }
-const v = (s) => s.entries().next().value, C = (s) => s.entries().next().value[0], L = (s) => s.entries().next().value[1], E = (s) => [...s].pop(), k = (s) => [...s.keys()].pop(), V = (s) => [...s.values()].pop();
-class g extends Map {
+const L = (i) => i.entries().next().value, v = (i) => i.entries().next().value[0], E = (i) => i.entries().next().value[1], k = (i) => [...i].pop(), I = (i) => [...i.keys()].pop(), M = (i) => [...i.values()].pop();
+class y extends Map {
   constructor(t) {
     super(t);
   }
@@ -50,22 +50,22 @@ class g extends Map {
     return this.removeIndex(t);
   }
   firstEntry() {
-    return v(this);
-  }
-  firstKey() {
-    return C(this);
-  }
-  firstValue() {
     return L(this);
   }
-  lastEntry() {
+  firstKey() {
+    return v(this);
+  }
+  firstValue() {
     return E(this);
   }
-  lastKey() {
+  lastEntry() {
     return k(this);
   }
+  lastKey() {
+    return I(this);
+  }
   lastValue() {
-    return V(this);
+    return M(this);
   }
   prevCurrNext(t) {
     let e = curr = next = null;
@@ -82,15 +82,15 @@ class g extends Map {
           this.set(...n);
   }
   setMultiple(t) {
-    return c(t) ? (t.forEach(([e, n]) => this.set(e, n)), !0) : !1;
+    return p(t) ? (t.forEach(([e, n]) => this.set(e, n)), !0) : !1;
   }
   populate(t) {
-    return c(t) ? (this.clear(), t.forEach(([e, n]) => this.set(e, n)), !0) : !1;
+    return p(t) ? (this.clear(), t.forEach(([e, n]) => this.set(e, n)), !0) : !1;
   }
   insertIndex(t, e, n) {
     if (!d(t)) return !1;
-    const i = [...this];
-    return i.splice(t, 0, [e, n]), this.populate(i), !0;
+    const s = [...this];
+    return s.splice(t, 0, [e, n]), this.populate(s), !0;
   }
   removeIndex(t) {
     if (!d(t)) return !1;
@@ -103,56 +103,56 @@ class g extends Map {
     return w(n, t, e), this.populate(n), !0;
   }
   swapKeys(t, e) {
-    const n = [...this], i = n.findIndex(([o]) => o === t), r = n.findIndex(([o]) => o === e);
-    return [n[i], n[r]] = [n[r], n[i]], this.clear(), n.forEach(([o, p]) => this.set(o, p)), !0;
+    const n = [...this], s = n.findIndex(([r]) => r === t), o = n.findIndex(([r]) => r === e);
+    return [n[s], n[o]] = [n[o], n[s]], this.clear(), n.forEach(([r, c]) => this.set(r, c)), !0;
   }
 }
 class u {
-  static #e = new g();
+  static #e = new y();
   static get entries() {
     return u.#e;
   }
-  static isValid(t, e, n, i) {
-    return !l(t) || !f(e) || !b(n) || !M(i);
+  static isValid(t, e, n, s) {
+    return !l(t) || !h(e) || !b(n) || !A(s);
   }
-  static add(t, e, n, i) {
-    if (!this.isValid(t, e, n, i)) return !1;
-    e.addEventListener(n, i), u.#e.has(t) || u.#e.set(t, new g());
-    const r = u.#e.get(t);
-    r.has(e) || r.set(e, {});
-    const o = r.get(e);
-    return c(o[n]) || (o[n] = []), o[n].push(i), !0;
+  static add(t, e, n, s) {
+    if (!this.isValid(t, e, n, s)) return !1;
+    e.addEventListener(n, s), u.#e.has(t) || u.#e.set(t, new y());
+    const o = u.#e.get(t);
+    o.has(e) || o.set(e, {});
+    const r = o.get(e);
+    return p(r[n]) || (r[n] = []), r[n].push(s), !0;
   }
-  static remove(t, e, n, i) {
-    if (!u.isValid(t, e, n, i) || !u.#e.has(t)) return !1;
-    const r = u.#e.get(t);
-    if (!r.has(e)) return !1;
-    const o = r.get(e);
-    if (!(n in o)) return !1;
-    const p = o[n].indexOf(i);
-    return p < 0 ? !1 : (o[n].splice(p, 1), o[n].length == 0 && delete o[n], Object.keys(o).length == 0 && r.delete(e), r.size == 0 && u.#e.delete(t), !0);
+  static remove(t, e, n, s) {
+    if (!u.isValid(t, e, n, s) || !u.#e.has(t)) return !1;
+    const o = u.#e.get(t);
+    if (!o.has(e)) return !1;
+    const r = o.get(e);
+    if (!(n in r)) return !1;
+    const c = r[n].indexOf(s);
+    return c < 0 ? !1 : (r[n].splice(c, 1), r[n].length == 0 && delete r[n], Object.keys(r).length == 0 && o.delete(e), o.size == 0 && u.#e.delete(t), !0);
   }
   static expungeEvent(t, e, n) {
-    if (!l(t) || !f(e) || !b(n))
+    if (!l(t) || !h(e) || !b(n))
       return !1;
-    const i = u.#e.get(t);
-    if (!i.has(e)) return !1;
-    const r = i.get(e);
-    if (n in r) {
-      for (let o of r[n])
-        e.removeEventListener(n, o);
-      delete r[n];
+    const s = u.#e.get(t);
+    if (!s.has(e)) return !1;
+    const o = s.get(e);
+    if (n in o) {
+      for (let r of o[n])
+        e.removeEventListener(n, r);
+      delete o[n];
     }
     return !0;
   }
   static expungeElement(t, e) {
-    if (!l(t) || !f(e))
+    if (!l(t) || !h(e))
       return !1;
     const n = u.#e.get(t);
     if (n.has(e)) {
-      let i = n.get(e);
-      for (let r in i)
-        u.expungeEvent(t, e, r);
+      let s = n.get(e);
+      for (let o in s)
+        u.expungeEvent(t, e, o);
       n.delete(e);
     }
     return !0;
@@ -176,25 +176,25 @@ class u {
     return u.#e = void 0, !0;
   }
 }
-function c(s) {
-  return Array.isArray(s);
+function p(i) {
+  return Array.isArray(i);
 }
-function M(s) {
-  return s && typeof s == "function";
+function A(i) {
+  return i && typeof i == "function";
 }
-function l(s) {
-  return typeof s == "object" && !Array.isArray(s) && s !== null;
+function l(i) {
+  return typeof i == "object" && !Array.isArray(i) && i !== null;
 }
-function d(s) {
-  return typeof s == "number" && !isNaN(s);
+function d(i) {
+  return typeof i == "number" && !isNaN(i);
 }
-function b(s) {
-  return typeof s == "string";
+function b(i) {
+  return typeof i == "string";
 }
-function f(s) {
-  return typeof HTMLElement == "object" ? s instanceof HTMLElement : s && typeof s == "object" && s !== null && s.nodeType === 1 && typeof s.nodeName == "string";
+function h(i) {
+  return typeof HTMLElement == "object" ? i instanceof HTMLElement : i && typeof i == "object" && i !== null && i.nodeType === 1 && typeof i.nodeName == "string";
 }
-const I = `
+const V = `
 input[type="number"].custom-number-input {
   -webkit-appearance: textfield;
      -moz-appearance: textfield;
@@ -377,7 +377,7 @@ input[type="number"].custom-number-input:focus {
   }
 }
 
-`, O = ["default", "left-right", "left-right-round", "right", "right-round", "plus-minus", "vertical"], h = {
+`, C = ["default", "left-right", "left-right-round", "right", "right-round", "plus-minus", "vertical"], f = {
   layout: "default",
   showOnHover: !0,
   showOnFocus: !0,
@@ -388,69 +388,76 @@ input[type="number"].custom-number-input:focus {
     spinner: "spinner-controls",
     incButton: "spinner-btn spinner-up",
     decButton: "spinner-btn spinner-down"
-  }
+  },
+  i18n: {
+    incrementLabel: "Increment",
+    decrementLabel: "Decrement",
+    ariaControlsIdPrefix: "number-input"
+  },
+  onChange: null
 };
 class a {
   static #e = !1;
   static #u = /* @__PURE__ */ new Map();
-  static get elements() {
+  static get instances() {
     return a.#u;
   }
-  static build(t, e = h) {
-    if (e = l(e) ? a.#m(e) : h, b(t)) {
-      const n = document.querySelectorAll(t);
-      return n.length || a.#d(`No elements found for selector: ${t}`), [...n].map((r) => a.#h(r, e));
+  static build(t, e = f) {
+    const n = l(e) ? e : g(f);
+    if (b(t)) {
+      const s = document.querySelectorAll(t);
+      return s.length ? [...s].map((o) => a.#p(o, n)) : (a.#h(`No elements found for selector: ${t}`), null);
     } else
-      return a.#h(t, e);
+      return a.#p(t, n);
   }
   static #p(t, e) {
+    if (!h(t))
+      return a.#h();
+    if (a.isNumberInput(t))
+      return a.#d(t, e);
+    const n = document.createElement("input");
+    return n.type = "number", a.#m(t, n), t.appendChild(n), a.#d(n, e);
+  }
+  static #m(t, e) {
+    ["min", "max", "step", "value", "placeholder", "disabled", "required"].forEach((s) => {
+      t.hasAttribute(s) && e.setAttribute(s, t.getAttribute(s));
+    });
+  }
+  static #d(t, e) {
     if (a.#u.has(t))
-      return console.warn("NumberInput already exists for this element"), a.#u.get(t);
+      return console.warn("CustomNumberInput: Already instantiated for this element."), a.#u.get(t);
     const n = new a(t, e);
     return a.#u.set(t, n), n;
   }
-  static #d(t = 'a valid HTMLElement input type="number is expected"') {
-    throw new Error(`NumberInput Error: ${t}`);
+  static #b(t) {
+    const e = m(g(f), t);
+    return C.includes(e.layout) || (e.layout = "default"), e;
+  }
+  static #h(t = 'A valid input[type="number"] HTMLElement is required.') {
+    throw new Error(`[CustomNumberInput] ${t}`);
   }
   static isNumberInput(t) {
     return t instanceof HTMLInputElement && t.type === "number";
   }
-  static #h(t, e) {
-    if (f(t)) {
-      if (a.isNumberInput(t))
-        return a.#p(t, e);
-      {
-        const n = document.createElement("input");
-        n.setAttribute("type", "number");
-        const i = a.#p(n, e);
-        return t.appendChild(i), i;
-      }
-    } else
-      return a.#d(), null;
-  }
   static injectStyles() {
-    if (!a.#e) {
-      const t = document.createElement("style");
-      t.type = "text/css", t.id = "custom-number-input-styles", t.appendChild(document.createTextNode(I)), document.head.appendChild(t), a.#e = !0;
-    }
-  }
-  static #m(t) {
-    x(h);
-    const e = m(h, t);
-    return O.includes(e.layout) || (e.layout = "default"), e.showOnHover, e.showOnFocus, e;
+    if (a.#e) return;
+    const t = document.createElement("style");
+    t.id = "custom-number-input-styles", t.textContent = V, document.head.appendChild(t), a.#e = !0;
   }
   #t;
-  #r;
-  #i;
   #n;
+  #i;
   #s;
-  #l = null;
+  #r;
   #c = null;
+  #l = null;
   constructor(t, e = {}) {
-    this.#t = t, this.#r = e, this.#b(), this.#g(), this.#y();
+    this.#t = t, this.#n = a.#b(e), this.#y(), this.#x(), this.#w(), this.#o();
   }
   destroy() {
-    this.#a(), a.#u.delete(this.#t), this.#i.remove();
+    this.#a(), a.#u.delete(this.#t);
+    const t = this.#i?.parentNode;
+    t && this.#i && this.#t && t.replaceChild(this.#t, this.#i);
   }
   get input() {
     return this.#t;
@@ -459,38 +466,27 @@ class a {
     return this.#i;
   }
   get incButton() {
-    return this.#n;
-  }
-  get decButton() {
     return this.#s;
   }
+  get decButton() {
+    return this.#r;
+  }
   get config() {
-    return { ...this.#r };
-  }
-  #b() {
-    this.#t.classList.add("custom-number-input");
-    const t = this.#r.cssClasses.container.split(" ");
-    this.#i = document.createElement("div"), this.#i.classList.add(
-      ...t,
-      `number-input-layout-${this.#r.layout}`
-    ), this.#t.parentNode?.insertBefore(this.#i, this.#t), this.#i.appendChild(this.#t);
-  }
-  #g() {
-    const t = this.#r.cssClasses.spinner.split(" "), e = document.createElement("div");
-    e.classList.add(...t);
-    const n = this.#r.cssClasses.incButton.split(" ");
-    this.#n = document.createElement("button"), this.#n.type = "button", this.#n.classList.add(...n), this.#n.innerHTML = "&#9650;", this.#n.tabIndex = -1, this.#n.setAttribute("aria-label", "Increment"), this.#n.setAttribute("aria-controls", this.#t.id || "number-input");
-    const i = this.#r.cssClasses.decButton.split(" ");
-    this.#s = document.createElement("button"), this.#s.type = "button", this.#s.classList.add(...i), this.#s.innerHTML = "&#9660;", this.#s.tabIndex = -1, this.#s.setAttribute("aria-label", "Decrement"), this.#s.setAttribute("aria-controls", this.#t.id || "number-input"), e.appendChild(this.#n), e.appendChild(this.#s), this.#i.appendChild(e);
-  }
-  #y() {
-    a.injectStyles(), this.#n.addEventListener("click", (t) => this.increment.call(this, t)), this.#s.addEventListener("click", (t) => this.decrement.call(this, t)), this.#n.addEventListener("mousedown", (t) => this.#f.call(this, t, "up")), this.#s.addEventListener("mousedown", (t) => this.#f.call(this, t, "down")), document.addEventListener("mouseup", () => this.#a.call(this)), this.#n.addEventListener("mouseleave", () => this.#a.call(this)), this.#s.addEventListener("mouseleave", () => this.#a.call(this)), this.#t.addEventListener("input", () => this.#o.call(this)), this.#t.addEventListener("change", () => this.#o.call(this)), this.#n.addEventListener("mousedown", (t) => t.preventDefault()), this.#s.addEventListener("mousedown", (t) => t.preventDefault()), this.#o();
+    return { ...this.#n };
   }
   getValue() {
     const t = this.#t.value.trim();
     if (t === "") return 0;
     const e = parseFloat(t);
     return isNaN(e) ? 0 : e;
+  }
+  setValue(t) {
+    if (typeof t != "number" || isNaN(t)) {
+      console.warn("[CustomNumberInput] setValue expects a number");
+      return;
+    }
+    const e = this.getStep(), n = this.#g(e), s = parseFloat(t.toFixed(n));
+    this.#t.value = s, this.#t.dispatchEvent(new Event("input", { bubbles: !0 })), this.#t.dispatchEvent(new Event("change", { bubbles: !0 })), typeof this.#n.onChange == "function" && this.#n.onChange(s), this.#o();
   }
   getStep() {
     const t = parseFloat(this.#t.step);
@@ -504,47 +500,61 @@ class a {
     const t = parseFloat(this.#t.max);
     return isNaN(t) ? null : t;
   }
-  setValue(t) {
-    if (typeof t != "number" || isNaN(t)) {
-      console.warn("setValue expects a valid number");
-      return;
-    }
-    const e = this.getStep(), n = this.#x(e), i = parseFloat(t.toFixed(n));
-    this.#t.value = i, this.#t.dispatchEvent(new Event("input", { bubbles: !0 })), this.#t.dispatchEvent(new Event("change", { bubbles: !0 }));
-  }
-  #x(t) {
+  #g(t) {
+    if (!Number.isFinite(t)) return 0;
     const e = t.toString();
-    if (e.indexOf(".") !== -1 && e.indexOf("e-") === -1)
-      return e.split(".")[1].length;
-    if (e.indexOf("e-") !== -1) {
-      const n = e.split("e-");
-      return parseInt(n[1], 10);
-    }
-    return 0;
+    return e.includes("e-") ? parseInt(e.split("e-")[1], 10) : e.includes(".") ? e.split(".")[1].length : 0;
   }
   increment(t) {
-    t.preventDefault();
-    const e = this.getValue(), n = this.getStep(), i = this.getMax(), r = e + n;
-    (i === null || r <= i) && this.setValue(r), this.#o();
+    t?.preventDefault();
+    const e = this.getValue() + this.getStep(), n = this.getMax();
+    (n === null || e <= n) && this.setValue(e), this.#o();
   }
   decrement(t) {
-    t.preventDefault();
-    const e = this.getValue(), n = this.getStep(), i = this.getMin(), r = e - n;
-    (i === null || r >= i) && this.setValue(r), this.#o();
+    t?.preventDefault();
+    const e = this.getValue() - this.getStep(), n = this.getMin();
+    (n === null || e >= n) && this.setValue(e), this.#o();
   }
   #o() {
-    const t = this.getValue(), e = this.getMin(), n = this.getMax(), i = this.getStep();
-    this.#i.classList.remove("at-min", "at-max"), e !== null && t <= e && this.#i.classList.add("at-min"), n !== null && t >= n && this.#i.classList.add("at-max"), this.#n.disabled = n !== null && t + i > n, this.#s.disabled = e !== null && t - i < e;
+    const t = this.getValue(), e = this.getMin(), n = this.getMax(), s = this.getStep();
+    this.#i.classList.remove("at-min", "at-max"), e !== null && t <= e && this.#i.classList.add("at-min"), n !== null && t >= n && this.#i.classList.add("at-max"), this.#s.disabled = n !== null && t + s > n, this.#r.disabled = e !== null && t - s < e;
+  }
+  #y() {
+    this.#t.classList.add("custom-number-input");
+    const t = this.#n.cssClasses.container.split(" ");
+    this.#i = document.createElement("div"), this.#i.classList.add(...t, `number-input-layout-${this.#n.layout}`), this.#t.parentNode?.insertBefore(this.#i, this.#t), this.#i.appendChild(this.#t);
+  }
+  #x() {
+    const { incrementLabel: t, decrementLabel: e, ariaControlsIdPrefix: n } = this.#n.i18n, s = document.createElement("div");
+    s.classList.add(...this.#n.cssClasses.spinner.split(" "));
+    const o = this.#t.id || `${n}-${Math.random().toString(36).slice(2)}`;
+    this.#t.id || (this.#t.id = o);
+    const r = document.createElement("button");
+    r.type = "button", r.classList.add(...this.#n.cssClasses.incButton.split(" ")), r.innerHTML = "&#9650;", r.tabIndex = -1, r.setAttribute("aria-label", t), r.setAttribute("aria-controls", o), this.#s = r;
+    const c = document.createElement("button");
+    c.type = "button", c.classList.add(...this.#n.cssClasses.decButton.split(" ")), c.innerHTML = "&#9660;", c.tabIndex = -1, c.setAttribute("aria-label", e), c.setAttribute("aria-controls", o), this.#r = c, s.appendChild(r), s.appendChild(c), this.#i.appendChild(s);
+  }
+  #w() {
+    a.injectStyles(), this.#s.addEventListener("click", this.increment.bind(this)), this.#r.addEventListener("click", this.decrement.bind(this)), ["mousedown", "touchstart"].forEach(
+      (t) => this.#s.addEventListener(t, (e) => this.#f(e, "up"))
+    ), ["mousedown", "touchstart"].forEach(
+      (t) => this.#r.addEventListener(t, (e) => this.#f(e, "down"))
+    ), ["mouseup", "touchend", "mouseleave"].forEach((t) => {
+      this.#s.addEventListener(t, this.#a.bind(this)), this.#r.addEventListener(t, this.#a.bind(this)), document.addEventListener(t, this.#a.bind(this));
+    }), this.#t.addEventListener("input", this.#o.bind(this)), this.#t.addEventListener("change", this.#o.bind(this)), this.#t.addEventListener("keydown", (t) => this.#L(t)), this.#o();
+  }
+  #L(t) {
+    t.key === "ArrowUp" ? (t.preventDefault(), this.#s.disabled || this.increment(t)) : t.key === "ArrowDown" && (t.preventDefault(), this.#r.disabled || this.decrement(t));
   }
   #f(t, e) {
-    t.preventDefault(), this.#a(), this.#l = setTimeout(() => {
-      this.#c = setInterval(() => {
-        e === "up" ? this.increment() : this.decrement();
-      }, this.#r.continuousInterval);
-    }, this.#r.continuousDelay);
+    t.preventDefault(), this.#a(), this.#c = setTimeout(() => {
+      this.#l = setInterval(() => {
+        e === "up" ? this.increment(new Event("auto")) : this.decrement(new Event("auto"));
+      }, this.#n.continuousInterval);
+    }, this.#n.continuousDelay);
   }
   #a() {
-    this.#l && (clearTimeout(this.#l), this.#l = null), this.#c && (clearInterval(this.#c), this.#c = null);
+    this.#c && (clearTimeout(this.#c), this.#c = null), this.#l && (clearInterval(this.#l), this.#l = null);
   }
 }
 export {
